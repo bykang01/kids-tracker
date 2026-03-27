@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="우리아이기록">
+<title>우리아이 기록</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #F7F4EF;
+  --card: #FFFFFF;
+  --text: #2C2C2A;
+  --text2: #888780;
+  --text3: #B4B2A9;
+  --border: #E8E4DC;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --danger: #E05555;
+  --success: #4CAF82;
+  /* video */
+  --v-primary: #FF6B35;
+  --v-light: #FFF0EB;
+  /* book */
+  --b-primary: #4CAF82;
+  --b-light: #E8F5EE;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 80px; }
+
+/* Bottom nav */
+.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid var(--border); display: flex; z-index: 200; padding-bottom: env(safe-area-inset-bottom); }
+.nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 0 8px; border: none; background: transparent; cursor: pointer; font-family: 'Nunito', sans-serif; gap: 3px; }
+.nav-icon { font-size: 22px; }
+.nav-label { font-size: 11px; font-weight: 700; color: var(--text3); }
+.nav-btn.active .nav-label { color: var(--v-primary); }
+.nav-btn.active-book .nav-label { color: var(--b-primary); }
+
+/* Pages */
+.page { display: none; }
+.page.active { display: block; }
+
+/* Header */
+.header { color: white; padding: 20px 20px 16px; position: sticky; top: 0; z-index: 100; }
+.header-video { background: var(--v-primary); }
+.header-book { background: var(--b-primary); }
+.header h1 { font-size: 20px; font-weight: 800; }
+.header p { font-size: 12px; opacity: 0.8; margin-top: 2px; }
+
+/* Month tabs */
+.month-scroll { display: flex; gap: 8px; overflow-x: auto; padding: 12px 16px; scrollbar-width: none; background: white; border-bottom: 1px solid var(--border); }
+.month-scroll::-webkit-scrollbar { display: none; }
+.month-btn { flex-shrink: 0; padding: 5px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; border: none; cursor: pointer; font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text2); }
+.month-btn.v-active { background: var(--v-primary); color: white; }
+.month-btn.b-active { background: var(--b-primary); color: white; }
+
+.content { padding: 14px; }
+
+/* Stats */
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.stat-card { background: var(--card); border-radius: var(--radius); padding: 14px; }
+.stat-card.wide { grid-column: 1/-1; }
+.stat-label { font-size: 11px; color: var(--text2); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+.stat-value { font-size: 24px; font-weight: 800; }
+.stat-sub { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.progress-wrap { background: var(--bg); border-radius: 6px; height: 8px; margin-top: 8px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 6px; transition: width 0.4s; }
+
+/* Chart */
+.chart-card { background: var(--card); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; }
+.chart-title { font-size: 13px; font-weight: 700; color: var(--text2); margin-bottom: 10px; }
+
+/* Add card */
+.add-card { background: var(--card); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; }
+.add-title { font-size: 15px; font-weight: 800; margin-bottom: 12px; }
+.field { margin-bottom: 10px; }
+.field label { display: block; font-size: 12px; font-weight: 700; color: var(--text2); margin-bottom: 4px; }
+.field input, .field textarea { width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 15px; font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); outline: none; resize: none; }
+.field input:focus, .field textarea:focus { background: white; }
+.field-v input:focus { border-color: var(--v-primary); }
+.field-b input:focus, .field-b textarea:focus { border-color: var(--b-primary); }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.btn-add { width: 100%; padding: 13px; color: white; border: none; border-radius: var(--radius-sm); font-size: 16px; font-weight: 800; font-family: 'Nunito', sans-serif; cursor: pointer; margin-top: 4px; }
+.btn-add-v { background: var(--v-primary); }
+.btn-add-b { background: var(--b-primary); }
+.btn-add:disabled { opacity: 0.5; cursor: not-allowed; }
+.msg { font-size: 12px; margin-top: 8px; min-height: 16px; font-weight: 700; }
+.msg.ok { color: var(--success); }
+.msg.err { color: var(--danger); }
+
+/* View tabs */
+.view-tabs { display: flex; background: var(--card); border-radius: var(--radius); overflow: hidden; margin-bottom: 12px; }
+.view-tab { flex: 1; padding: 10px; text-align: center; font-size: 13px; font-weight: 700; cursor: pointer; border: none; background: transparent; color: var(--text2); font-family: 'Nunito', sans-serif; }
+.view-tab.v-active { background: var(--v-primary); color: white; border-radius: var(--radius); margin: 3px; }
+.view-tab.b-active { background: var(--b-primary); color: white; border-radius: var(--radius); margin: 3px; }
+
+/* Log items */
+.log-list, .book-list { display: flex; flex-direction: column; gap: 8px; }
+.log-item { background: var(--card); border-radius: var(--radius-sm); padding: 12px 14px; display: flex; align-items: center; gap: 12px; }
+.log-dot { width: 38px; height: 38px; border-radius: 10px; background: var(--v-light); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.log-info { flex: 1; min-width: 0; }
+.log-title { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.log-meta { font-size: 11px; color: var(--text2); margin-top: 2px; }
+.log-time { font-size: 13px; font-weight: 800; color: var(--v-primary); flex-shrink: 0; }
+.btn-del { background: none; border: none; color: var(--text3); font-size: 20px; cursor: pointer; padding: 2px 6px; }
+
+/* Video list */
+.video-item { background: var(--card); border-radius: var(--radius-sm); padding: 12px 14px; display: flex; align-items: center; gap: 10px; }
+.video-rank { width: 28px; height: 28px; border-radius: 8px; background: var(--v-light); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: var(--v-primary); flex-shrink: 0; }
+.video-rank.gold { background: #FFF3CC; color: #B8860B; }
+.video-rank.silver { background: #F0F0F0; color: #666; }
+.video-rank.bronze { background: #FFF0E8; color: #CD7F32; }
+.video-name { flex: 1; font-size: 14px; font-weight: 700; }
+.video-cnt { font-size: 12px; font-weight: 700; color: var(--text2); }
+
+/* Book items */
+.book-item { background: var(--card); border-radius: var(--radius-sm); padding: 14px; display: flex; gap: 12px; }
+.book-thumb-ph { width: 48px; height: 64px; border-radius: 6px; background: var(--b-light); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.book-info { flex: 1; min-width: 0; }
+.book-title { font-size: 14px; font-weight: 800; line-height: 1.3; }
+.book-date { font-size: 11px; color: var(--text2); margin-top: 3px; }
+.book-memo { font-size: 12px; color: var(--text2); margin-top: 6px; line-height: 1.5; border-left: 2px solid var(--border); padding-left: 8px; font-style: italic; }
+.btn-del-sm { background: none; border: 1.5px solid var(--danger); color: var(--danger); border-radius: 6px; padding: 3px 10px; font-size: 11px; font-weight: 700; cursor: pointer; font-family: 'Nunito', sans-serif; margin-top: 8px; }
+
+/* Camera */
+.camera-area { border: 2px dashed var(--border); border-radius: var(--radius-sm); padding: 18px; text-align: center; cursor: pointer; margin-bottom: 12px; transition: all 0.2s; }
+.camera-area:active { border-color: var(--b-primary); background: var(--b-light); }
+.camera-icon { font-size: 28px; margin-bottom: 4px; }
+.camera-text { font-size: 13px; font-weight: 700; color: var(--text2); }
+.camera-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.preview-wrap { position: relative; margin-bottom: 12px; display: none; }
+.preview-wrap img { width: 100%; max-height: 180px; object-fit: contain; border-radius: var(--radius-sm); border: 1px solid var(--border); }
+.preview-del { position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,0.55); color: white; border: none; border-radius: 50%; width: 28px; height: 28px; font-size: 16px; cursor: pointer; }
+.ai-status { display: none; font-size: 13px; font-weight: 700; color: var(--b-primary); padding: 8px 0; text-align: center; }
+.ai-status.show { display: block; }
+
+/* Multi book select */
+.book-select-area { display: none; background: var(--b-light); border: 1.5px solid var(--b-primary); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 12px; }
+.book-select-title { font-size: 13px; font-weight: 800; color: var(--b-primary); margin-bottom: 10px; }
+.book-check-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.book-check-item:last-child { border-bottom: none; }
+.book-check-item input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--b-primary); flex-shrink: 0; }
+.book-check-label { font-size: 14px; font-weight: 700; flex: 1; }
+.book-check-edit { font-size: 12px; color: var(--b-primary); background: none; border: none; font-family: 'Nunito', sans-serif; font-weight: 700; cursor: pointer; }
+.btn-multi-add { width: 100%; padding: 11px; background: var(--b-primary); color: white; border: none; border-radius: var(--radius-sm); font-size: 14px; font-weight: 800; font-family: 'Nunito', sans-serif; cursor: pointer; margin-top: 10px; }
+.btn-multi-add:disabled { opacity: 0.4; }
+
+.empty { text-align: center; padding: 36px 20px; color: var(--text3); font-size: 14px; }
+.empty span { display: block; font-size: 34px; margin-bottom: 8px; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--b-light); border-top-color: var(--b-primary); border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle; margin-right: 5px; }
+</style>
+</head>
+<body>
+
+<!-- ===== 영상 페이지 ===== -->
+<div class="page active" id="page-video">
+  <div class="header header-video">
+    <h1>📺 영상 시청 기록</h1>
+    <p id="v-header-sub">우리 아이 미디어 습관 관리</p>
+  </div>
+  <div class="month-scroll" id="v-month-tabs"></div>
+  <div class="content">
+    <div class="stats" id="v-stats"></div>
+    <div class="chart-card">
+      <div class="chart-title">📊 주간 시청 시간 (분)</div>
+      <canvas id="vChart" height="150"></canvas>
+    </div>
+    <div class="add-card">
+      <div class="add-title">➕ 영상 추가</div>
+      <div class="field field-v">
+        <label>영상 제목</label>
+        <input id="vf-title" type="text" placeholder="예: 뽀로로 시즌3 12화">
+      </div>
+      <div class="field-row">
+        <div class="field field-v">
+          <label>시청 시간 (분)</label>
+          <input id="vf-min" type="number" placeholder="30" min="1">
+        </div>
+        <div class="field field-v">
+          <label>날짜</label>
+          <input id="vf-date" type="date">
+        </div>
+      </div>
+      <button class="btn-add btn-add-v" onclick="vAdd()">기록 추가</button>
+      <div id="v-msg" class="msg"></div>
+    </div>
+    <div class="view-tabs">
+      <button class="view-tab v-active" id="vtab-log" onclick="vSwitch('log')">시청 기록</button>
+      <button class="view-tab" id="vtab-videos" onclick="vSwitch('videos')">영상 목록</button>
+    </div>
+    <div id="v-view-log"></div>
+    <div id="v-view-videos" style="display:none"></div>
+  </div>
+</div>
+
+<!-- ===== 독서 페이지 ===== -->
+<div class="page" id="page-book">
+  <div class="header header-book">
+    <h1>📚 독서 기록</h1>
+    <p id="b-header-sub">우리 아이 독서 습관 관리</p>
+  </div>
+  <div class="month-scroll" id="b-month-tabs"></div>
+  <div class="content">
+    <div class="stats" id="b-stats"></div>
+    <div class="chart-card">
+      <div class="chart-title">📊 월별 독서 권수</div>
+      <canvas id="bChart" height="150"></canvas>
+    </div>
+    <div class="add-card">
+      <div class="add-title">📖 책 추가하기</div>
+      <div class="camera-area" id="b-camera-area" onclick="document.getElementById('b-camera-input').click()">
+        <div class="camera-icon">📷</div>
+        <div class="camera-text">책 표지 사진으로 자동 인식</div>
+        <div class="camera-sub">여러 권도 한번에 인식 가능</div>
+      </div>
+      <input type="file" id="b-camera-input" accept="image/*" style="display:none" onchange="bHandleImage(event)">
+      <div class="preview-wrap" id="b-preview-wrap">
+        <img id="b-preview-img" src="" alt="">
+        <button class="preview-del" onclick="bClearImage()">×</button>
+      </div>
+      <div class="ai-status" id="b-ai-status"><span class="spinner"></span>AI가 책 표지 분석 중...</div>
+      <div class="book-select-area" id="b-select-area">
+        <div class="book-select-title" id="b-select-title"></div>
+        <div id="b-check-list"></div>
+        <button class="btn-multi-add" id="b-multi-add-btn" onclick="bAddSelected()">선택한 책 모두 추가</button>
+      </div>
+      <div class="field field-b">
+        <label>도서명 (직접 입력)</label>
+        <input id="bf-title" type="text" placeholder="예: 해리포터와 마법사의 돌">
+      </div>
+      <div class="field-row">
+        <div class="field field-b">
+          <label>읽은 날짜</label>
+          <input id="bf-date" type="date">
+        </div>
+        <div class="field field-b">
+          <label>페이지 수</label>
+          <input id="bf-pages" type="number" placeholder="0" min="1">
+        </div>
+      </div>
+      <div class="field field-b">
+        <label>한줄 감상</label>
+        <textarea id="bf-memo" rows="2" placeholder="오늘 읽은 책 한줄 감상..."></textarea>
+      </div>
+      <button class="btn-add btn-add-b" id="b-add-btn" onclick="bAdd()">기록 추가</button>
+      <div id="b-msg" class="msg"></div>
+    </div>
+    <div class="view-tabs">
+      <button class="view-tab b-active" id="btab-log" onclick="bSwitch('log')">독서 기록</button>
+      <button class="view-tab" id="btab-stats" onclick="bSwitch('stats')">통계</button>
+    </div>
+    <div id="b-view-log"></div>
+    <div id="b-view-stats" style="display:none"></div>
+  </div>
+</div>
+
+<!-- Bottom Nav -->
+<nav class="bottom-nav">
+  <button class="nav-btn active" id="nav-video" onclick="goPage('video')">
+    <span class="nav-icon">📺</span>
+    <span class="nav-label">영상</span>
+  </button>
+  <button class="nav-btn" id="nav-book" onclick="goPage('book')">
+    <span class="nav-icon">📚</span>
+    <span class="nav-label">독서</span>
+  </button>
+</nav>
+
+<script>
+// ===== STORAGE =====
+const VK = 'video-tracker-v2';
+const BK = 'book-tracker-v2';
+let vData = JSON.parse(localStorage.getItem(VK)||'[]');
+let bData = JSON.parse(localStorage.getItem(BK)||'[]');
+let vMonth = '', bMonth = '', vView = 'log', bView = 'log';
+let vChart = null, bChart = null;
+let bImageB64 = null;
+
+function vSave(){ localStorage.setItem(VK, JSON.stringify(vData)); }
+function bSave(){ localStorage.setItem(BK, JSON.stringify(bData)); }
+
+// ===== NAV =====
+function goPage(p) {
+  document.getElementById('page-video').classList.toggle('active', p==='video');
+  document.getElementById('page-book').classList.toggle('active', p==='book');
+  document.getElementById('nav-video').className = 'nav-btn' + (p==='video'?' active':'');
+  document.getElementById('nav-book').className = 'nav-btn' + (p==='book'?' active-book':'');
+  if(p==='video') vRender();
+  else bRender();
+}
+
+// ===== UTILS =====
+function getMonths(data) {
+  const ms = [...new Set(data.map(d=>d.date.slice(0,7)))].sort().reverse();
+  if(!ms.length){ const n=new Date(); return [n.toISOString().slice(0,7)]; }
+  return ms;
+}
+function fmtM(ym){ const[y,m]=ym.split('-'); return `${y}.${m}`; }
+function fmtMin(min){ if(min<60) return `${min}분`; const h=Math.floor(min/60),m=min%60; return m?`${h}시간${m}분`:`${h}시간`; }
+
+// ===== VIDEO =====
+function vRender(){
+  const months = getMonths(vData);
+  if(!vMonth||!months.includes(vMonth)) vMonth=months[0];
+  document.getElementById('v-month-tabs').innerHTML = months.map(m=>
+    `<button class="month-btn${m===vMonth?' v-active':''}" onclick="vSetMonth('${m}')">${fmtM(m)}</button>`
+  ).join('');
+  const md = vData.filter(d=>d.date.slice(0,7)===vMonth);
+  const total = md.reduce((s,d)=>s+d.min,0);
+  const days = new Set(md.map(d=>d.date));
+  const avg = days.size>0?Math.round(total/days.size):0;
+  const pct = Math.min(100,Math.round((avg/60)*100));
+  const bc = avg<=60?'#4CAF82':'#E05555';
+  document.getElementById('v-header-sub').textContent = `${fmtM(vMonth)} · 총 ${fmtMin(total)} 시청`;
+  document.getElementById('v-stats').innerHTML = `
+    <div class="stat-card"><div class="stat-label">월 총 시청</div><div class="stat-value">${fmtMin(total)}</div><div class="stat-sub">${md.length}회 기록</div></div>
+    <div class="stat-card"><div class="stat-label">하루 평균</div><div class="stat-value">${fmtMin(avg)}</div><div class="stat-sub">${days.size}일 시청</div></div>
+    <div class="stat-card wide"><div class="stat-label">하루 평균 vs 권장 1시간</div><div class="progress-wrap"><div class="progress-fill" style="width:${pct}%;background:${bc}"></div></div><div class="stat-sub" style="margin-top:6px">${avg<=60?'✅ 권장 시간 이내':`⚠️ 권장 시간 ${avg-60}분 초과`}</div></div>`;
+  // chart
+  const today=new Date(); const labels=[],vals=[];
+  for(let i=6;i>=0;i--){const d=new Date(today);d.setDate(d.getDate()-i);const ds=d.toISOString().split('T')[0];labels.push(`${d.getMonth()+1}/${d.getDate()}`);vals.push(md.filter(x=>x.date===ds).reduce((s,x)=>s+x.min,0));}
+  const ctx=document.getElementById('vChart').getContext('2d');
+  if(vChart) vChart.destroy();
+  vChart=new Chart(ctx,{type:'bar',data:{labels,datasets:[{data:vals,backgroundColor:vals.map(v=>v>60?'rgba(224,85,85,0.7)':'rgba(255,107,53,0.7)'),borderRadius:8,borderSkipped:false}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'#F0EDE6'},ticks:{font:{family:'Nunito',size:11}}},x:{grid:{display:false},ticks:{font:{family:'Nunito',size:11}}}}}});
+  // log
+  const logEl=document.getElementById('v-view-log');
+  if(!md.length){logEl.innerHTML='<div class="empty"><span>📭</span>아직 기록이 없어요</div>';}
+  else{const s=[...md].sort((a,b)=>b.date.localeCompare(a.date));logEl.innerHTML=`<div class="log-list">${s.map(d=>`<div class="log-item"><div class="log-dot">🎬</div><div class="log-info"><div class="log-title">${d.title}</div><div class="log-meta">${d.date}</div></div><div class="log-time">${fmtMin(d.min)}</div><button class="btn-del" onclick="vDel('${d.id}')">×</button></div>`).join('')}</div>`;}
+  // videos
+  const vidEl=document.getElementById('v-view-videos');
+  if(!md.length){vidEl.innerHTML='<div class="empty"><span>📋</span>기록된 영상 없음</div>';}
+  else{const cnt={};md.forEach(d=>{cnt[d.title]=(cnt[d.title]||0)+1;});const uniq=[...new Set(md.map(d=>d.title))].sort((a,b)=>cnt[b]-cnt[a]);const rc=['gold','silver','bronze'];vidEl.innerHTML=`<div class="log-list">${uniq.map((t,i)=>`<div class="video-item"><div class="video-rank ${rc[i]||''}">${i+1}</div><div class="video-name">${t}</div><div class="video-cnt">${cnt[t]}회</div></div>`).join('')}</div>`;}
+}
+function vAdd(){
+  const title=document.getElementById('vf-title').value.trim();
+  const min=parseInt(document.getElementById('vf-min').value);
+  const date=document.getElementById('vf-date').value;
+  const msg=document.getElementById('v-msg');
+  if(!title){msg.className='msg err';msg.textContent='영상 제목을 입력해주세요.';return;}
+  if(!min||min<1){msg.className='msg err';msg.textContent='시청 시간을 입력해주세요.';return;}
+  if(!date){msg.className='msg err';msg.textContent='날짜를 선택해주세요.';return;}
+  vData.push({id:Date.now().toString(),title,min,date}); vSave();
+  document.getElementById('vf-title').value=''; document.getElementById('vf-min').value='';
+  vMonth=date.slice(0,7); msg.className='msg ok'; msg.textContent=`"${title}" 추가됐어요!`;
+  setTimeout(()=>{msg.textContent='';},2000); vRender();
+}
+function vDel(id){if(!confirm('삭제할까요?'))return;vData=vData.filter(d=>d.id!==id);vSave();vRender();}
+function vSetMonth(m){vMonth=m;vRender();}
+function vSwitch(v){
+  vView=v;
+  document.getElementById('v-view-log').style.display=v==='log'?'':'none';
+  document.getElementById('v-view-videos').style.display=v==='videos'?'':'none';
+  document.getElementById('vtab-log').className='view-tab'+(v==='log'?' v-active':'');
+  document.getElementById('vtab-videos').className='view-tab'+(v==='videos'?' v-active':'');
+}
+
+// ===== BOOK =====
+function bRender(){
+  const months=getMonths(bData);
+  if(!bMonth||!months.includes(bMonth)) bMonth=months[0];
+  document.getElementById('b-month-tabs').innerHTML=months.map(m=>
+    `<button class="month-btn${m===bMonth?' b-active':''}" onclick="bSetMonth('${m}')">${fmtM(m)}</button>`
+  ).join('');
+  const mb=bData.filter(b=>b.date.slice(0,7)===bMonth);
+  const totalP=mb.reduce((s,b)=>s+(b.pages||0),0);
+  document.getElementById('b-header-sub').textContent=`${fmtM(bMonth)} · ${mb.length}권 읽음`;
+  document.getElementById('b-stats').innerHTML=`
+    <div class="stat-card"><div class="stat-label">이번달 독서</div><div class="stat-value">${mb.length}<span style="font-size:15px">권</span></div><div class="stat-sub">목표: 월 4권</div></div>
+    <div class="stat-card"><div class="stat-label">읽은 페이지</div><div class="stat-value">${totalP.toLocaleString()}</div><div class="stat-sub">페이지</div></div>`;
+  // chart
+  const allM=getMonths(bData).slice(0,6).reverse();
+  const ctx=document.getElementById('bChart').getContext('2d');
+  if(bChart) bChart.destroy();
+  bChart=new Chart(ctx,{type:'bar',data:{labels:allM.map(fmtM),datasets:[{data:allM.map(m=>bData.filter(b=>b.date.slice(0,7)===m).length),backgroundColor:allM.map((_,i)=>i===allM.length-1?'rgba(76,175,130,0.9)':'rgba(76,175,130,0.4)'),borderRadius:8,borderSkipped:false}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1,font:{family:'Nunito',size:11}},grid:{color:'#EAF3EA'}},x:{grid:{display:false},ticks:{font:{family:'Nunito',size:11}}}}}});
+  // log
+  const logEl=document.getElementById('b-view-log');
+  if(!mb.length){logEl.innerHTML='<div class="empty"><span>📭</span>아직 기록이 없어요</div>';}
+  else{const s=[...mb].sort((a,b)=>b.date.localeCompare(a.date));logEl.innerHTML=`<div class="book-list">${s.map(b=>`<div class="book-item"><div class="book-thumb-ph">📗</div><div class="book-info"><div class="book-title">${b.title}</div><div class="book-date">${b.date}${b.pages?` · ${b.pages}페이지`:''}</div>${b.memo?`<div class="book-memo">${b.memo}</div>`:''}<button class="btn-del-sm" onclick="bDel('${b.id}')">삭제</button></div></div>`).join('')}</div>`;}
+  // stats
+  const statsEl=document.getElementById('b-view-stats');
+  statsEl.innerHTML=`<div class="book-list"><div class="stat-card wide"><div class="stat-label">전체 독서 기록</div><div class="stat-value">${bData.length}<span style="font-size:15px">권</span></div><div class="stat-sub">기록 시작 이후 총 합계</div></div>${getMonths(bData).map(m=>`<div style="background:var(--card);border-radius:var(--radius-sm);padding:12px 14px;display:flex;justify-content:space-between;align-items:center;"><span style="font-size:14px;font-weight:700;">${fmtM(m)}</span><span style="font-size:16px;font-weight:800;color:var(--b-primary);">${bData.filter(b=>b.date.slice(0,7)===m).length}권</span></div>`).join('')}</div>`;
+}
+function bAdd(){
+  const title=document.getElementById('bf-title').value.trim();
+  const date=document.getElementById('bf-date').value;
+  const pages=parseInt(document.getElementById('bf-pages').value)||0;
+  const memo=document.getElementById('bf-memo').value.trim();
+  const msg=document.getElementById('b-msg');
+  if(!title){msg.className='msg err';msg.textContent='도서명을 입력해주세요.';return;}
+  if(!date){msg.className='msg err';msg.textContent='날짜를 선택해주세요.';return;}
+  bData.push({id:Date.now().toString(),title,date,pages,memo});
+  bSave();
+  document.getElementById('bf-title').value='';
+  document.getElementById('bf-pages').value='';
+  document.getElementById('bf-memo').value='';
+  bClearImage();
+  bMonth=date.slice(0,7);
+  msg.className='msg ok';msg.textContent=`"${title}" 추가됐어요!`;
+  setTimeout(()=>{msg.textContent='';},2000); bRender();
+}
+function bDel(id){if(!confirm('삭제할까요?'))return;bData=bData.filter(b=>b.id!==id);bSave();bRender();}
+function bSetMonth(m){bMonth=m;bRender();}
+function bSwitch(v){
+  bView=v;
+  document.getElementById('b-view-log').style.display=v==='log'?'':'none';
+  document.getElementById('b-view-stats').style.display=v==='stats'?'':'none';
+  document.getElementById('btab-log').className='view-tab'+(v==='log'?' b-active':'');
+  document.getElementById('btab-stats').className='view-tab'+(v==='stats'?' b-active':'');
+}
+
+// ===== BOOK IMAGE =====
+function bHandleImage(e){
+  const file=e.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const b64full=ev.target.result;
+    bImageB64=b64full.split(',')[1];
+    document.getElementById('b-preview-img').src=b64full;
+    document.getElementById('b-preview-wrap').style.display='block';
+    document.getElementById('b-camera-area').style.display='none';
+    bRecognize(bImageB64);
+  };
+  reader.readAsDataURL(file);
+  e.target.value='';
+}
+function bClearImage(){
+  bImageB64=null;
+  document.getElementById('b-preview-wrap').style.display='none';
+  document.getElementById('b-camera-area').style.display='block';
+  document.getElementById('b-preview-img').src='';
+  document.getElementById('b-select-area').style.display='none';
+}
+async function bRecognize(b64){
+  const st=document.getElementById('b-ai-status');
+  const btn=document.getElementById('b-add-btn');
+  st.innerHTML='<span class="spinner"></span>AI가 책 표지 분석 중...';
+  st.style.color='var(--b-primary)';
+  st.className='ai-status show';
+  btn.disabled=true;
+  document.getElementById('b-select-area').style.display='none';
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:500,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:'이 사진에서 보이는 모든 책의 제목을 인식해줘. 한 권이든 여러 권이든 모두 찾아줘. JSON 배열로만 반환해: {"books":[{"title":"책제목1"},{"title":"책제목2"}]}. 책을 찾을 수 없으면 {"books":[]}. JSON만 반환하고 다른 텍스트는 없애줘.'}]}]})});
+    const data=await res.json();
+    const text=data.content?.map(c=>c.text||'').join('')||'';
+    const parsed=JSON.parse(text.replace(/```json|```/g,'').trim());
+    const list=parsed.books||[];
+    if(list.length===0){
+      st.innerHTML='⚠️ 인식 실패. 직접 입력해주세요.';st.style.color='var(--danger)';
+      setTimeout(()=>{st.className='ai-status';st.style.color='';},3000);
+    } else if(list.length===1){
+      document.getElementById('bf-title').value=list[0].title;
+      st.innerHTML=`✅ "${list[0].title}" 인식 완료!`;st.style.color='var(--success)';
+      setTimeout(()=>{st.className='ai-status';st.style.color='';},3000);
+    } else {
+      st.className='ai-status';
+      document.getElementById('b-select-title').textContent=`📚 ${list.length}권 인식됐어요 — 추가할 책을 선택하세요`;
+      document.getElementById('b-check-list').innerHTML=list.map((b,i)=>`
+        <div class="book-check-item">
+          <input type="checkbox" id="bchk-${i}" checked onchange="bUpdateBtn()">
+          <label class="book-check-label" id="bchk-label-${i}" for="bchk-${i}">${b.title}</label>
+          <button class="book-check-edit" onclick="bEditTitle(${i})">수정</button>
+        </div>`).join('');
+      document.getElementById('b-select-area').style.display='block';
+      bUpdateBtn();
+    }
+  } catch(e){
+    st.innerHTML='⚠️ 인식 실패. 직접 입력해주세요.';st.style.color='var(--danger)';
+    setTimeout(()=>{st.className='ai-status';st.style.color='';},3000);
+  }
+  btn.disabled=false;
+}
+function bUpdateBtn(){
+  const any=[...document.querySelectorAll('#b-check-list input[type=checkbox]')].some(c=>c.checked);
+  document.getElementById('b-multi-add-btn').disabled=!any;
+}
+function bEditTitle(i){
+  const label=document.getElementById('bchk-label-'+i);
+  const cur=label.textContent;
+  const inp=document.createElement('input');
+  inp.type='text';inp.value=cur;
+  inp.style.cssText='flex:1;font-size:13px;padding:4px 8px;border:1.5px solid var(--b-primary);border-radius:6px;font-family:Nunito,sans-serif;background:white;color:var(--text);outline:none;';
+  label.replaceWith(inp);inp.focus();inp.select();
+  const done=()=>{const nl=document.createElement('label');nl.className='book-check-label';nl.id='bchk-label-'+i;nl.setAttribute('for','bchk-'+i);nl.textContent=inp.value.trim()||cur;inp.replaceWith(nl);};
+  inp.addEventListener('blur',done);inp.addEventListener('keydown',e=>{if(e.key==='Enter')inp.blur();});
+}
+function bAddSelected(){
+  const date=document.getElementById('bf-date').value;
+  const memo=document.getElementById('bf-memo').value.trim();
+  const pages=parseInt(document.getElementById('bf-pages').value)||0;
+  const msg=document.getElementById('b-msg');
+  if(!date){msg.className='msg err';msg.textContent='날짜를 선택해주세요.';return;}
+  const checks=document.querySelectorAll('#b-check-list input[type=checkbox]');
+  const selected=[];
+  checks.forEach((chk,i)=>{if(chk.checked){const l=document.getElementById('bchk-label-'+i);if(l)selected.push(l.textContent.trim());}});
+  if(!selected.length)return;
+  selected.forEach(title=>{bData.push({id:Date.now().toString()+Math.random(),title,date,pages,memo});});
+  bSave();
+  document.getElementById('b-select-area').style.display='none';
+  document.getElementById('bf-title').value='';
+  document.getElementById('bf-pages').value='';
+  document.getElementById('bf-memo').value='';
+  bClearImage();
+  bMonth=date.slice(0,7);
+  msg.className='msg ok';msg.textContent=`${selected.length}권 추가됐어요!`;
+  setTimeout(()=>{msg.textContent='';},2500);bRender();
+}
+
+// Init
+const today=new Date().toISOString().split('T')[0];
+document.getElementById('vf-date').value=today;
+document.getElementById('bf-date').value=today;
+vRender();
+</script>
+</body>
+</html>
