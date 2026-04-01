@@ -10,487 +10,315 @@
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
-:root {
-  --bg: #F7F4EF;
-  --card: #FFFFFF;
-  --text: #2C2C2A;
-  --text2: #888780;
-  --text3: #B4B2A9;
-  --border: #E8E4DC;
-  --radius: 16px;
-  --radius-sm: 10px;
-  --danger: #E05555;
-  --success: #4CAF82;
-  --v-primary: #FF6B35;
-  --v-light: #FFF0EB;
-  --b-primary: #4CAF82;
-  --b-light: #E8F5EE;
-}
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 80px; }
-
-.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid var(--border); display: flex; z-index: 200; padding-bottom: env(safe-area-inset-bottom); }
-.nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 0 8px; border: none; background: transparent; cursor: pointer; font-family: 'Nunito', sans-serif; gap: 3px; }
-.nav-icon { font-size: 22px; }
-.nav-label { font-size: 11px; font-weight: 700; color: var(--text3); }
-
-.page { display: none; }
-.page.active { display: block; }
-
-.header { color: white; padding: 20px 20px 16px; position: sticky; top: 0; z-index: 100; }
-.header-video { background: var(--v-primary); }
-.header-book { background: var(--b-primary); }
-.header-manage { background: #5A6B8A; }
-.header h1 { font-size: 20px; font-weight: 800; }
-.header p { font-size: 12px; opacity: 0.8; margin-top: 2px; }
-
-.month-scroll { display: flex; gap: 8px; overflow-x: auto; padding: 12px 16px; scrollbar-width: none; background: white; border-bottom: 1px solid var(--border); }
-.month-scroll::-webkit-scrollbar { display: none; }
-.month-btn { flex-shrink: 0; padding: 5px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; border: none; cursor: pointer; font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text2); }
-.month-btn.v-active { background: var(--v-primary); color: white; }
-.month-btn.b-active { background: var(--b-primary); color: white; }
-
-.content { padding: 14px; }
-
-.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
-.stat-card { background: var(--card); border-radius: var(--radius); padding: 14px; }
-.stat-card.wide { grid-column: 1/-1; }
-.stat-label { font-size: 11px; color: var(--text2); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
-.stat-value { font-size: 24px; font-weight: 800; }
-.stat-sub { font-size: 12px; color: var(--text3); margin-top: 2px; }
-.progress-wrap { background: var(--bg); border-radius: 6px; height: 8px; margin-top: 8px; overflow: hidden; }
-.progress-fill { height: 100%; border-radius: 6px; transition: width 0.4s; }
-
-.chart-card { background: var(--card); border-radius: var(--radius); padding: 16px; margin-top: 12px; }
-.chart-title { font-size: 13px; font-weight: 700; color: var(--text2); margin-bottom: 10px; }
-
-.add-card { background: var(--card); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; }
-.add-title { font-size: 15px; font-weight: 800; margin-bottom: 12px; }
-
-.field { margin-bottom: 10px; }
-.field label { display: block; font-size: 12px; font-weight: 700; color: var(--text2); margin-bottom: 4px; }
-.field input, .field textarea { width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 15px; font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); outline: none; resize: none; }
-.field input:focus, .field textarea:focus { background: white; }
-.field-v input:focus { border-color: var(--v-primary); }
-.field-b input:focus, .field-b textarea:focus { border-color: var(--b-primary); }
-.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
-.btn-add { width: 100%; padding: 13px; color: white; border: none; border-radius: var(--radius-sm); font-size: 16px; font-weight: 800; font-family: 'Nunito', sans-serif; cursor: pointer; margin-top: 4px; }
-.btn-add-v { background: var(--v-primary); }
-.btn-add-b { background: var(--b-primary); }
-.msg { font-size: 12px; margin-top: 8px; min-height: 16px; font-weight: 700; }
-.msg.ok { color: var(--success); }
-.msg.err { color: var(--danger); }
-
-.view-tabs { display: flex; background: var(--card); border-radius: var(--radius); overflow: hidden; margin-bottom: 12px; }
-.view-tab { flex: 1; padding: 10px 6px; text-align: center; font-size: 12px; font-weight: 700; cursor: pointer; border: none; background: transparent; color: var(--text2); font-family: 'Nunito', sans-serif; }
-.view-tab.v-active { background: var(--v-primary); color: white; border-radius: var(--radius); margin: 3px; }
-.view-tab.b-active { background: var(--b-primary); color: white; border-radius: var(--radius); margin: 3px; }
-
-.log-list, .book-list { display: flex; flex-direction: column; gap: 8px; }
-.log-item { background: var(--card); border-radius: var(--radius-sm); padding: 12px 14px; display: flex; align-items: center; gap: 12px; }
-.log-dot { width: 38px; height: 38px; border-radius: 10px; background: var(--v-light); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
-.log-info { flex: 1; min-width: 0; }
-.log-title { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.log-meta { font-size: 11px; color: var(--text2); margin-top: 2px; }
-.log-time { font-size: 13px; font-weight: 800; color: var(--v-primary); flex-shrink: 0; }
-.btn-del { background: none; border: none; color: var(--text3); font-size: 20px; cursor: pointer; padding: 2px 6px; }
-
-.video-item { background: var(--card); border-radius: var(--radius-sm); padding: 12px 14px; display: flex; align-items: center; gap: 10px; }
-.video-rank { width: 28px; height: 28px; border-radius: 8px; background: var(--v-light); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: var(--v-primary); flex-shrink: 0; }
-.video-rank.gold { background: #FFF3CC; color: #B8860B; }
-.video-rank.silver { background: #F0F0F0; color: #666; }
-.video-rank.bronze { background: #FFF0E8; color: #CD7F32; }
-.video-name { flex: 1; font-size: 14px; font-weight: 700; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.video-cnt { font-size: 12px; font-weight: 700; color: var(--text2); flex-shrink: 0; }
-
-.book-item { background: var(--card); border-radius: var(--radius-sm); padding: 14px; display: flex; gap: 12px; }
-.book-thumb-ph { width: 48px; height: 64px; border-radius: 6px; background: var(--b-light); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
-.book-info { flex: 1; min-width: 0; }
-.book-title { font-size: 14px; font-weight: 800; line-height: 1.3; }
-.book-date { font-size: 11px; color: var(--text2); margin-top: 3px; }
-.book-memo { font-size: 12px; color: var(--text2); margin-top: 6px; line-height: 1.5; border-left: 2px solid var(--border); padding-left: 8px; font-style: italic; }
-.btn-del-sm { background: none; border: 1.5px solid var(--danger); color: var(--danger); border-radius: 6px; padding: 3px 10px; font-size: 11px; font-weight: 700; cursor: pointer; font-family: 'Nunito', sans-serif; margin-top: 8px; }
-
-/* Picker */
-.picker-wrap { position: relative; margin-bottom: 0; }
-.picker-input { width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 15px; font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); outline: none; }
-.picker-input:focus { background: white; }
-.picker-input.v-sel { border-color: var(--v-primary); background: var(--v-light); }
-.picker-input.b-sel { border-color: var(--b-primary); background: var(--b-light); }
-.picker-dropdown { background: white; border: 1.5px solid var(--border); border-radius: var(--radius-sm); max-height: 220px; overflow-y: auto; display: none; position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 300; box-shadow: 0 4px 16px rgba(0,0,0,0.10); }
-.picker-dropdown.open { display: block; }
-.picker-item { padding: 11px 14px; font-size: 14px; font-weight: 700; cursor: pointer; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.picker-item:last-child { border-bottom: none; }
-.picker-item:active { background: var(--bg); }
-.picker-item-left { flex: 1; min-width: 0; }
-.picker-item-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.picker-item-sub { font-size: 11px; color: var(--text2); font-weight: 400; margin-top: 2px; }
-.badge-recent-v { font-size: 10px; color: var(--v-primary); font-weight: 700; background: var(--v-light); padding: 2px 7px; border-radius: 10px; flex-shrink: 0; }
-.badge-recent-b { font-size: 10px; color: var(--b-primary); font-weight: 700; background: var(--b-light); padding: 2px 7px; border-radius: 10px; flex-shrink: 0; }
-.picker-new { color: var(--text2); }
-.picker-empty { padding: 14px; font-size: 13px; color: var(--text3); }
-.channel-badge { display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 11px; font-weight: 700; background: var(--v-light); color: var(--v-primary); }
-
-/* Manage */
-.manage-section { background: var(--card); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; }
-.manage-title { font-size: 15px; font-weight: 800; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
-.manage-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
-.manage-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--bg); border-radius: var(--radius-sm); }
-.manage-item-name { flex: 1; font-size: 14px; font-weight: 700; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.manage-item-sub { font-size: 11px; color: var(--text2); flex-shrink: 0; }
-.btn-manage-del { background: none; border: none; color: var(--text3); font-size: 20px; cursor: pointer; padding: 2px; flex-shrink: 0; }
-.manage-add-row { display: flex; gap: 8px; }
-.manage-add-input { flex: 1; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); outline: none; }
-.manage-add-input.v-inp:focus { border-color: var(--v-primary); background: white; }
-.manage-add-input.b-inp:focus { border-color: var(--b-primary); background: white; }
-.btn-mg { padding: 10px 16px; color: white; border: none; border-radius: var(--radius-sm); font-size: 14px; font-weight: 800; font-family: 'Nunito', sans-serif; cursor: pointer; }
-.btn-mg-v { background: var(--v-primary); }
-.btn-mg-b { background: var(--b-primary); }
-
-.empty { text-align: center; padding: 30px 20px; color: var(--text3); font-size: 14px; }
-.empty span { display: block; font-size: 32px; margin-bottom: 8px; }
+:root{--bg:#F7F4EF;--card:#FFF;--text:#2C2C2A;--text2:#888780;--text3:#B4B2A9;--border:#E8E4DC;--radius:16px;--radius-sm:10px;--danger:#E05555;--success:#4CAF82;--vp:#FF6B35;--vl:#FFF0EB;--bp:#4CAF82;--bl:#E8F5EE;--ep:#5B7FD4;--el:#EEF2FC;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:80px;}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid var(--border);display:flex;z-index:200;padding-bottom:env(safe-area-inset-bottom);}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 0 8px;border:none;background:transparent;cursor:pointer;font-family:'Nunito',sans-serif;gap:3px;}
+.nav-icon{font-size:22px;}.nav-label{font-size:11px;font-weight:700;color:var(--text3);}
+.page{display:none;}.page.active{display:block;}
+.header{color:white;padding:20px 20px 16px;position:sticky;top:0;z-index:100;}
+.hv{background:var(--vp);}.hb{background:var(--bp);}.hm{background:#5A6B8A;}
+.header h1{font-size:20px;font-weight:800;}.header p{font-size:12px;opacity:0.8;margin-top:2px;}
+.month-scroll{display:flex;gap:8px;overflow-x:auto;padding:12px 16px;scrollbar-width:none;background:white;border-bottom:1px solid var(--border);}
+.month-scroll::-webkit-scrollbar{display:none;}
+.month-btn{flex-shrink:0;padding:5px 14px;border-radius:20px;font-size:13px;font-weight:700;border:none;cursor:pointer;font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text2);}
+.mva{background:var(--vp);color:white;}.mba{background:var(--bp);color:white;}
+.content{padding:14px;}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.sc{background:var(--card);border-radius:var(--radius);padding:14px;}
+.sc.wide{grid-column:1/-1;}
+.sl{font-size:11px;color:var(--text2);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
+.sv{font-size:24px;font-weight:800;}.ss{font-size:12px;color:var(--text3);margin-top:2px;}
+.pw{background:var(--bg);border-radius:6px;height:8px;margin-top:8px;overflow:hidden;}
+.pf{height:100%;border-radius:6px;transition:width .4s;}
+.chart-card{background:var(--card);border-radius:var(--radius);padding:16px;margin-top:12px;}
+.ct{font-size:13px;font-weight:700;color:var(--text2);margin-bottom:10px;}
+.add-card{background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:12px;}
+.add-title{font-size:15px;font-weight:800;margin-bottom:12px;}
+.field{margin-bottom:10px;}
+.field label{display:block;font-size:12px;font-weight:700;color:var(--text2);margin-bottom:4px;}
+.field input,.field textarea{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:15px;font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);outline:none;resize:none;}
+.field input:focus,.field textarea:focus{background:white;}
+.fv input:focus{border-color:var(--vp);}.fb input:focus,.fb textarea:focus{border-color:var(--bp);}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.btn-add{width:100%;padding:13px;color:white;border:none;border-radius:var(--radius-sm);font-size:16px;font-weight:800;font-family:'Nunito',sans-serif;cursor:pointer;margin-top:4px;}
+.bav{background:var(--vp);}.bab{background:var(--bp);}
+.msg{font-size:12px;margin-top:8px;min-height:16px;font-weight:700;}
+.msg.ok{color:var(--success);}.msg.err{color:var(--danger);}
+.view-tabs{display:flex;background:var(--card);border-radius:var(--radius);overflow:hidden;margin-bottom:12px;}
+.view-tab{flex:1;padding:10px 4px;text-align:center;font-size:11px;font-weight:700;cursor:pointer;border:none;background:transparent;color:var(--text2);font-family:'Nunito',sans-serif;}
+.tva{background:var(--vp);color:white;border-radius:var(--radius);margin:3px;}
+.tba{background:var(--bp);color:white;border-radius:var(--radius);margin:3px;}
+.log-list,.book-list{display:flex;flex-direction:column;gap:8px;}
+.log-item{background:var(--card);border-radius:var(--radius-sm);padding:12px 14px;display:flex;align-items:center;gap:12px;}
+.log-dot{width:38px;height:38px;border-radius:10px;background:var(--vl);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.log-info{flex:1;min-width:0;}
+.log-title{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.log-meta{font-size:11px;color:var(--text2);margin-top:2px;}
+.log-time{font-size:13px;font-weight:800;color:var(--vp);flex-shrink:0;}
+.btn-del{background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;padding:2px 6px;}
+.vi{background:var(--card);border-radius:var(--radius-sm);padding:12px 14px;display:flex;align-items:center;gap:10px;}
+.vr{width:28px;height:28px;border-radius:8px;background:var(--vl);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--vp);flex-shrink:0;}
+.vr.gold{background:#FFF3CC;color:#B8860B;}.vr.silver{background:#F0F0F0;color:#666;}.vr.bronze{background:#FFF0E8;color:#CD7F32;}
+.vn{flex:1;font-size:14px;font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.vc{font-size:12px;font-weight:700;color:var(--text2);flex-shrink:0;}
+.book-item{background:var(--card);border-radius:var(--radius-sm);padding:14px;display:flex;gap:12px;}
+.bph{width:48px;height:64px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.bph.kr{background:var(--bl);}.bph.en{background:var(--el);}
+.book-info{flex:1;min-width:0;}
+.book-title{font-size:14px;font-weight:800;line-height:1.3;}
+.book-date{font-size:11px;color:var(--text2);margin-top:3px;}
+.book-memo{font-size:12px;color:var(--text2);margin-top:6px;line-height:1.5;border-left:2px solid var(--border);padding-left:8px;font-style:italic;}
+.btn-del-sm{background:none;border:1.5px solid var(--danger);color:var(--danger);border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;margin-top:8px;}
+.lang-toggle{display:flex;gap:0;margin-bottom:10px;border-radius:var(--radius-sm);overflow:hidden;border:1.5px solid var(--border);}
+.lang-btn{flex:1;padding:10px;text-align:center;font-size:14px;font-weight:700;cursor:pointer;border:none;background:var(--bg);color:var(--text2);font-family:'Nunito',sans-serif;}
+.lang-btn.kr-on{background:var(--bp);color:white;}.lang-btn.en-on{background:var(--ep);color:white;}
+.badge-ch{display:inline-block;padding:1px 7px;border-radius:10px;font-size:11px;font-weight:700;background:var(--vl);color:var(--vp);}
+.badge-kr{display:inline-block;padding:1px 7px;border-radius:10px;font-size:11px;font-weight:700;background:var(--bl);color:#085041;}
+.badge-en{display:inline-block;padding:1px 7px;border-radius:10px;font-size:11px;font-weight:700;background:var(--el);color:#185FA5;}
+.bsl-item{background:var(--card);border-radius:var(--radius-sm);padding:11px 14px;display:flex;align-items:center;gap:10px;}
+.bsl-dot{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.bsl-dot.kr{background:var(--bl);}.bsl-dot.en{background:var(--el);}
+.bsl-name{flex:1;font-size:13px;font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.bsl-cnt{font-size:13px;font-weight:800;color:var(--bp);flex-shrink:0;}
+.picker-wrap{position:relative;margin-bottom:0;}
+.picker-input{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:15px;font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);outline:none;}
+.picker-input:focus{background:white;}
+.picker-input.vsel{border-color:var(--vp);background:var(--vl);}
+.picker-input.bsel{border-color:var(--bp);background:var(--bl);}
+.picker-drop{background:white;border:1.5px solid var(--border);border-radius:var(--radius-sm);max-height:220px;overflow-y:auto;display:none;position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:300;box-shadow:0 4px 16px rgba(0,0,0,.1);}
+.picker-drop.open{display:block;}
+.pi{padding:11px 14px;font-size:14px;font-weight:700;cursor:pointer;border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.pi:last-child{border-bottom:none;}.pi:active{background:var(--bg);}
+.pi-left{flex:1;min-width:0;}.pi-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pi-sub{font-size:11px;color:var(--text2);font-weight:400;margin-top:2px;}
+.brv{font-size:10px;color:var(--vp);font-weight:700;background:var(--vl);padding:2px 7px;border-radius:10px;flex-shrink:0;}
+.brb{font-size:10px;color:var(--bp);font-weight:700;background:var(--bl);padding:2px 7px;border-radius:10px;flex-shrink:0;}
+.pi-new{color:var(--text2);}.pi-empty{padding:14px;font-size:13px;color:var(--text3);}
+.manage-section{background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:12px;}
+.manage-title{font-size:15px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;}
+.manage-list{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
+.manage-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border-radius:var(--radius-sm);}
+.mi-name{flex:1;font-size:14px;font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.mi-sub{font-size:11px;color:var(--text2);flex-shrink:0;}
+.btn-mdel{background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;padding:2px;flex-shrink:0;}
+.madd-row{display:flex;gap:8px;}
+.madd-inp{flex:1;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);outline:none;}
+.madd-inp.vi:focus{border-color:var(--vp);background:white;}
+.madd-inp.bi:focus{border-color:var(--bp);background:white;}
+.btn-mg{padding:10px 16px;color:white;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:800;font-family:'Nunito',sans-serif;cursor:pointer;}
+.btn-mgv{background:var(--vp);}.btn-mgb{background:var(--bp);}
+.empty{text-align:center;padding:30px 20px;color:var(--text3);font-size:14px;}
+.empty span{display:block;font-size:32px;margin-bottom:8px;}
 </style>
 </head>
 <body>
 
-<!-- 영상 페이지 -->
 <div class="page active" id="page-video">
-  <div class="header header-video">
-    <h1>📺 영상 시청 기록</h1>
-    <p id="v-header-sub">우리 아이 미디어 습관 관리</p>
-  </div>
-  <div class="month-scroll" id="v-month-tabs"></div>
+  <div class="header hv"><h1>📺 영상 시청 기록</h1><p id="vh-sub">우리 아이 미디어 습관 관리</p></div>
+  <div class="month-scroll" id="v-months"></div>
   <div class="content">
     <div class="add-card">
       <div class="add-title">➕ 영상 추가</div>
-      <div class="field field-v">
-        <label>채널 선택</label>
-        <div class="picker-wrap" id="vch-wrap">
-          <input class="picker-input" id="vch-input" type="text" placeholder="채널 검색 또는 직접 입력..." autocomplete="off"
-            oninput="vchSearch()" onfocus="vchOpen()">
-          <div class="picker-dropdown" id="vch-drop"></div>
-        </div>
+      <div class="field fv"><label>채널 선택</label>
+        <div class="picker-wrap"><input class="picker-input" id="vch-inp" type="text" placeholder="채널 검색 또는 직접 입력..." autocomplete="off" oninput="vchSearch()" onfocus="vchOpen()"><div class="picker-drop" id="vch-drop"></div></div>
       </div>
-      <div class="field field-v">
-        <label>영상 제목</label>
-        <input id="vf-title" type="text" placeholder="예: 공룡이 사라진 이유">
-      </div>
+      <div class="field fv"><label>영상 제목</label><input id="vf-title" type="text" placeholder="예: 공룡이 사라진 이유"></div>
       <div class="field-row">
-        <div class="field field-v">
-          <label>시청 시간 (분)</label>
-          <input id="vf-min" type="number" placeholder="30" min="1">
-        </div>
-        <div class="field field-v">
-          <label>날짜</label>
-          <input id="vf-date" type="date">
-        </div>
+        <div class="field fv"><label>시청 시간 (분)</label><input id="vf-min" type="number" placeholder="30" min="1"></div>
+        <div class="field fv"><label>날짜</label><input id="vf-date" type="date"></div>
       </div>
-      <button class="btn-add btn-add-v" onclick="vAdd()">기록 추가</button>
+      <button class="btn-add bav" onclick="vAdd()">기록 추가</button>
       <div id="v-msg" class="msg"></div>
     </div>
-
     <div class="stats" id="v-stats"></div>
-
     <div class="view-tabs">
-      <button class="view-tab v-active" id="vtab-log" onclick="vSwitch('log')">시청 기록</button>
+      <button class="view-tab tva" id="vtab-log" onclick="vSwitch('log')">시청 기록</button>
       <button class="view-tab" id="vtab-ch" onclick="vSwitch('ch')">채널별</button>
-      <button class="view-tab" id="vtab-videos" onclick="vSwitch('videos')">영상 목록</button>
+      <button class="view-tab" id="vtab-vids" onclick="vSwitch('vids')">영상 목록</button>
+      <button class="view-tab" id="vtab-mstat" onclick="vSwitch('mstat')">월 통계</button>
     </div>
     <div id="v-view-log"></div>
     <div id="v-view-ch" style="display:none"></div>
-    <div id="v-view-videos" style="display:none"></div>
-
-    <div class="chart-card">
-      <div class="chart-title">📊 주간 시청 시간 (분)</div>
-      <canvas id="vChart" height="150"></canvas>
-    </div>
+    <div id="v-view-vids" style="display:none"></div>
+    <div id="v-view-mstat" style="display:none"></div>
+    <div class="chart-card"><div class="ct">📊 주간 시청 시간 (분)</div><canvas id="vChart" height="150"></canvas></div>
   </div>
 </div>
 
-<!-- 독서 페이지 -->
 <div class="page" id="page-book">
-  <div class="header header-book">
-    <h1>📚 독서 기록</h1>
-    <p id="b-header-sub">우리 아이 독서 습관 관리</p>
-  </div>
-  <div class="month-scroll" id="b-month-tabs"></div>
+  <div class="header hb"><h1>📚 독서 기록</h1><p id="bh-sub">우리 아이 독서 습관 관리</p></div>
+  <div class="month-scroll" id="b-months"></div>
   <div class="content">
     <div class="add-card">
       <div class="add-title">📖 책 추가하기</div>
-      <div class="field field-b">
-        <label>책 선택</label>
-        <div class="picker-wrap" id="bbk-wrap">
-          <input class="picker-input" id="bbk-input" type="text" placeholder="책 검색 또는 새 책 직접 입력..." autocomplete="off"
-            oninput="bbkSearch()" onfocus="bbkOpen()">
-          <div class="picker-dropdown" id="bbk-drop"></div>
+      <div class="field fb"><label>책 선택</label>
+        <div class="picker-wrap"><input class="picker-input" id="bbk-inp" type="text" placeholder="책 검색 또는 새 책 직접 입력..." autocomplete="off" oninput="bbkSearch()" onfocus="bbkOpen()"><div class="picker-drop" id="bbk-drop"></div></div>
+      </div>
+      <div class="field fb"><label>언어 구분</label>
+        <div class="lang-toggle">
+          <button class="lang-btn kr-on" id="lang-kr" onclick="setLang('kr')">🇰🇷 한글책</button>
+          <button class="lang-btn" id="lang-en" onclick="setLang('en')">🇺🇸 영어책</button>
         </div>
       </div>
-      <div class="field-row">
-        <div class="field field-b">
-          <label>읽은 날짜</label>
-          <input id="bf-date" type="date">
-        </div>
-        <div class="field field-b">
-          <label>페이지 수</label>
-          <input id="bf-pages" type="number" placeholder="0" min="1">
-        </div>
-      </div>
-      <div class="field field-b">
-        <label>한줄 감상</label>
-        <textarea id="bf-memo" rows="2" placeholder="오늘 읽은 책 한줄 감상..."></textarea>
-      </div>
-      <button class="btn-add btn-add-b" onclick="bAdd()">기록 추가</button>
+      <div class="field fb"><label>읽은 날짜</label><input id="bf-date" type="date"></div>
+      <div class="field fb"><label>한줄 감상</label><textarea id="bf-memo" rows="2" placeholder="오늘 읽은 책 한줄 감상..."></textarea></div>
+      <button class="btn-add bab" onclick="bAdd()">기록 추가</button>
       <div id="b-msg" class="msg"></div>
     </div>
-
     <div class="stats" id="b-stats"></div>
-
     <div class="view-tabs">
-      <button class="view-tab b-active" id="btab-log" onclick="bSwitch('log')">독서 기록</button>
-      <button class="view-tab" id="btab-stats" onclick="bSwitch('stats')">통계</button>
+      <button class="view-tab tba" id="btab-log" onclick="bSwitch('log')">독서 기록</button>
+      <button class="view-tab" id="btab-stat" onclick="bSwitch('stat')">통계 &amp; 목록</button>
     </div>
     <div id="b-view-log"></div>
-    <div id="b-view-stats" style="display:none"></div>
-
-    <div class="chart-card">
-      <div class="chart-title">📊 월별 독서 권수</div>
-      <canvas id="bChart" height="150"></canvas>
-    </div>
+    <div id="b-view-stat" style="display:none"></div>
+    <div class="chart-card"><div class="ct">📊 월별 독서 권수 (한글/영어)</div><canvas id="bChart" height="150"></canvas></div>
   </div>
 </div>
 
-<!-- 관리 페이지 -->
 <div class="page" id="page-manage">
-  <div class="header header-manage">
-    <h1>⚙️ 목록 관리</h1>
-    <p>채널 및 책 목록을 관리해요</p>
-  </div>
+  <div class="header hm"><h1>⚙️ 목록 관리</h1><p>채널 및 책 목록을 관리해요</p></div>
   <div class="content">
     <div class="manage-section">
-      <div class="manage-title">📺 유튜브 채널 <span style="font-size:12px;color:var(--text2);font-weight:400" id="ch-count"></span></div>
-      <div class="manage-list" id="ch-manage-list"></div>
-      <div class="manage-add-row">
-        <input class="manage-add-input v-inp" id="ch-new" type="text" placeholder="새 채널 이름..." onkeydown="if(event.key==='Enter')chAdd()">
-        <button class="btn-mg btn-mg-v" onclick="chAdd()">추가</button>
-      </div>
+      <div class="manage-title">📺 유튜브 채널 <span style="font-size:12px;color:var(--text2);font-weight:400" id="ch-cnt"></span></div>
+      <div class="manage-list" id="ch-mlist"></div>
+      <div class="madd-row"><input class="madd-inp vi" id="ch-new" type="text" placeholder="새 채널 이름..." onkeydown="if(event.key==='Enter')chAdd()"><button class="btn-mg btn-mgv" onclick="chAdd()">추가</button></div>
     </div>
     <div class="manage-section">
-      <div class="manage-title">📚 책 목록 <span style="font-size:12px;color:var(--text2);font-weight:400" id="bk-count"></span></div>
-      <div class="manage-list" id="bk-manage-list"></div>
-      <div class="manage-add-row">
-        <input class="manage-add-input b-inp" id="bk-new" type="text" placeholder="새 책 제목..." onkeydown="if(event.key==='Enter')bkAdd()">
-        <button class="btn-mg btn-mg-b" onclick="bkAdd()">추가</button>
-      </div>
+      <div class="manage-title">📚 책 목록 <span style="font-size:12px;color:var(--text2);font-weight:400" id="bk-cnt"></span></div>
+      <div class="manage-list" id="bk-mlist"></div>
+      <div class="madd-row"><input class="madd-inp bi" id="bk-new" type="text" placeholder="새 책 제목..." onkeydown="if(event.key==='Enter')bkAdd()"><button class="btn-mg btn-mgb" onclick="bkAdd()">추가</button></div>
     </div>
   </div>
 </div>
 
-<!-- 하단 네비 -->
 <nav class="bottom-nav">
-  <button class="nav-btn" id="nav-video" onclick="goPage('video')">
-    <span class="nav-icon">📺</span>
-    <span class="nav-label" id="nl-video" style="color:var(--v-primary)">영상</span>
-  </button>
-  <button class="nav-btn" id="nav-book" onclick="goPage('book')">
-    <span class="nav-icon">📚</span>
-    <span class="nav-label" id="nl-book">독서</span>
-  </button>
-  <button class="nav-btn" id="nav-manage" onclick="goPage('manage')">
-    <span class="nav-icon">⚙️</span>
-    <span class="nav-label" id="nl-manage">관리</span>
-  </button>
+  <button class="nav-btn" onclick="goPage('video')"><span class="nav-icon">📺</span><span class="nav-label" id="nl-video" style="color:var(--vp)">영상</span></button>
+  <button class="nav-btn" onclick="goPage('book')"><span class="nav-icon">📚</span><span class="nav-label" id="nl-book">독서</span></button>
+  <button class="nav-btn" onclick="goPage('manage')"><span class="nav-icon">⚙️</span><span class="nav-label" id="nl-manage">관리</span></button>
 </nav>
 
 <script>
-const VK='video-tracker-v2', BK='book-tracker-v2', CHK='channel-list-v1', BKK='book-list-v1';
+const VK='video-tracker-v2',BK='book-tracker-v2',CHK='channel-list-v1',BKK='book-list-v1';
 let vData=JSON.parse(localStorage.getItem(VK)||'[]');
 let bData=JSON.parse(localStorage.getItem(BK)||'[]');
 let channels=JSON.parse(localStorage.getItem(CHK)||'[]');
 let bookLib=JSON.parse(localStorage.getItem(BKK)||'[]');
-let vMonth='', bMonth='', vView='log', bView='log';
-let vChart=null, bChart=null;
-let vSelCh='', bSelBk='';
-
+let vMonth='',bMonth='',vView='log',bView='log';
+let vChart=null,bChart=null,vSelCh='',bSelBk='',bLang='kr';
 const vSave=()=>localStorage.setItem(VK,JSON.stringify(vData));
 const bSave=()=>localStorage.setItem(BK,JSON.stringify(bData));
 const chSave=()=>localStorage.setItem(CHK,JSON.stringify(channels));
 const bkSave=()=>localStorage.setItem(BKK,JSON.stringify(bookLib));
 
-// NAV
-function goPage(p) {
-  ['video','book','manage'].forEach(x=>{
-    document.getElementById('page-'+x).classList.toggle('active',p===x);
-  });
-  const colors={video:'var(--v-primary)',book:'var(--b-primary)',manage:'#5A6B8A'};
-  ['video','book','manage'].forEach(x=>{
-    document.getElementById('nl-'+x).style.color=p===x?colors[x]:'';
-  });
-  closeAllDrops();
-  if(p==='video')vRender();
-  else if(p==='book')bRender();
-  else renderManage();
+function goPage(p){
+  ['video','book','manage'].forEach(x=>document.getElementById('page-'+x).classList.toggle('active',p===x));
+  const c={video:'var(--vp)',book:'var(--bp)',manage:'#5A6B8A'};
+  ['video','book','manage'].forEach(x=>document.getElementById('nl-'+x).style.color=p===x?c[x]:'');
+  closeDrops();
+  if(p==='video')vRender();else if(p==='book')bRender();else renderManage();
 }
+function closeDrops(){document.querySelectorAll('.picker-drop').forEach(d=>d.classList.remove('open'));}
+document.addEventListener('click',e=>{if(!e.target.closest('.picker-wrap'))closeDrops();});
 
-function closeAllDrops(){
-  document.querySelectorAll('.picker-dropdown').forEach(d=>d.classList.remove('open'));
-}
-document.addEventListener('click',e=>{if(!e.target.closest('.picker-wrap'))closeAllDrops();});
-
-// UTILS
-function getMonths(data){
-  const ms=[...new Set(data.map(d=>d.date.slice(0,7)))].sort().reverse();
-  if(!ms.length){const n=new Date();return[n.toISOString().slice(0,7)];}
-  return ms;
-}
-function fmtM(ym){const[y,m]=ym.split('-');return`${y}.${m}`;}
-function fmtMin(min){if(min<60)return`${min}분`;const h=Math.floor(min/60),m=min%60;return m?`${h}시간${m}분`:`${h}시간`;}
+function getMonths(data){const ms=[...new Set(data.map(d=>d.date.slice(0,7)))].sort().reverse();return ms.length?ms:[new Date().toISOString().slice(0,7)];}
+function fmtM(ym){const[y,m]=ym.split('-');return y+'.'+m;}
+function fmtMin(min){if(min<60)return min+'분';const h=Math.floor(min/60),m=min%60;return m?h+'시간'+m+'분':h+'시간';}
 function yesterday(){const d=new Date();d.setDate(d.getDate()-1);return d.toISOString().split('T')[0];}
-function recentScore(key,data,field){
-  const m={};data.forEach(d=>{if(d[field])m[d[field]]=Math.max(m[d[field]]||0,new Date(d.date).getTime());});
-  return m[key]||0;
-}
+function recentTs(key,data,field){const m={};data.forEach(d=>{if(d[field])m[d[field]]=Math.max(m[d[field]]||0,new Date(d.date).getTime());});return m[key]||0;}
 
-// CHANNEL PICKER
+function setLang(l){bLang=l;document.getElementById('lang-kr').className='lang-btn'+(l==='kr'?' kr-on':'');document.getElementById('lang-en').className='lang-btn'+(l==='en'?' en-on':'');}
+
 function vchOpen(){vchSearch();document.getElementById('vch-drop').classList.add('open');}
 function vchSearch(){
-  const q=document.getElementById('vch-input').value.trim().toLowerCase();
+  const q=document.getElementById('vch-inp').value.trim().toLowerCase();
   const drop=document.getElementById('vch-drop');
-  const sorted=[...channels].sort((a,b)=>recentScore(b,vData,'channel')-recentScore(a,vData,'channel'));
-  const filtered=q?sorted.filter(c=>c.toLowerCase().includes(q)):sorted;
+  const sorted=[...channels].sort((a,b)=>recentTs(b,vData,'channel')-recentTs(a,vData,'channel'));
+  const filt=q?sorted.filter(c=>c.toLowerCase().includes(q)):sorted;
   let html='';
-  filtered.forEach(c=>{
-    const rs=recentScore(c,vData,'channel');
-    const isRecent=rs&&(Date.now()-rs)<7*24*60*60*1000;
+  filt.forEach(c=>{
+    const ts=recentTs(c,vData,'channel');const recent=ts&&(Date.now()-ts)<604800000;
     const cnt=vData.filter(d=>d.channel===c).length;
-    html+=`<div class="picker-item" onclick="vchSelect('${c.replace(/'/g,"\\'")}')">
-      <div class="picker-item-left"><div class="picker-item-title">${c}</div>${cnt?`<div class="picker-item-sub">${cnt}회 시청</div>`:''}</div>
-      ${isRecent?'<span class="badge-recent-v">최근</span>':''}
-    </div>`;
+    html+='<div class="pi" onclick="vchSel(\''+c.replace(/'/g,"\\'")+'\')'+'"><div class="pi-left"><div class="pi-title">'+c+'</div>'+(cnt?'<div class="pi-sub">'+cnt+'회 시청</div>':'')+'</div>'+(recent?'<span class="brv">최근</span>':'')+'</div>';
   });
-  if(q&&!channels.some(c=>c.toLowerCase()===q))
-    html+=`<div class="picker-item picker-new" onclick="vchSelect('${q.replace(/'/g,"\\'")}',true)">➕ "${q}" 새 채널로 추가</div>`;
-  if(!html)html='<div class="picker-empty">채널 없음 — ⚙️ 관리에서 추가하거나 직접 입력하세요</div>';
-  drop.innerHTML=html;
-  drop.classList.add('open');
+  if(q&&!channels.some(c=>c.toLowerCase()===q))html+='<div class="pi pi-new" onclick="vchSel(\''+q.replace(/'/g,"\\'")+'\',true)">➕ "'+q+'" 새 채널로 추가</div>';
+  if(!html)html='<div class="pi-empty">채널 없음 — ⚙️ 관리에서 추가하거나 직접 입력하세요</div>';
+  drop.innerHTML=html;drop.classList.add('open');
 }
-function vchSelect(name,isNew=false){
+function vchSel(name,isNew){
   if(isNew&&!channels.includes(name)){channels.push(name);chSave();}
-  vSelCh=name;
-  const inp=document.getElementById('vch-input');
-  inp.value=name;inp.className='picker-input v-sel';
+  vSelCh=name;const inp=document.getElementById('vch-inp');inp.value=name;inp.className='picker-input vsel';
   document.getElementById('vch-drop').classList.remove('open');
 }
 
-// BOOK PICKER
 function bbkOpen(){bbkSearch();document.getElementById('bbk-drop').classList.add('open');}
 function bbkSearch(){
-  const q=document.getElementById('bbk-input').value.trim().toLowerCase();
+  const q=document.getElementById('bbk-inp').value.trim().toLowerCase();
   const drop=document.getElementById('bbk-drop');
-  const sorted=[...bookLib].sort((a,b)=>recentScore(b,bData,'title')-recentScore(a,bData,'title'));
-  const filtered=q?sorted.filter(b=>b.toLowerCase().includes(q)):sorted;
+  const sorted=[...bookLib].sort((a,b)=>recentTs(b.title||b,bData,'title')-recentTs(a.title||a,bData,'title'));
+  const filt=q?sorted.filter(b=>(b.title||b).toLowerCase().includes(q)):sorted;
   let html='';
-  filtered.forEach(b=>{
-    const rs=recentScore(b,bData,'title');
-    const isRecent=rs&&(Date.now()-rs)<7*24*60*60*1000;
-    const cnt=bData.filter(d=>d.title===b).length;
-    html+=`<div class="picker-item" onclick="bbkSelect('${b.replace(/'/g,"\\'")}')">
-      <div class="picker-item-left"><div class="picker-item-title">${b}</div>${cnt>1?`<div class="picker-item-sub">${cnt}번 읽음</div>`:''}</div>
-      ${isRecent?'<span class="badge-recent-b">최근</span>':''}
-    </div>`;
+  filt.forEach(b=>{
+    const title=b.title||b;const lang=b.lang||'kr';
+    const ts=recentTs(title,bData,'title');const recent=ts&&(Date.now()-ts)<604800000;
+    const cnt=bData.filter(d=>d.title===title).length;
+    const badge=lang==='en'?'<span class="badge-en">영어</span>':'<span class="badge-kr">한글</span>';
+    html+='<div class="pi" onclick="bbkSel(\''+title.replace(/'/g,"\\'")+'\',\''+lang+'\')'+'"><div class="pi-left"><div class="pi-title">'+title+' '+badge+'</div>'+(cnt>1?'<div class="pi-sub">'+cnt+'번 읽음</div>':'')+'</div>'+(recent?'<span class="brb">최근</span>':'')+'</div>';
   });
-  if(q&&!bookLib.some(b=>b.toLowerCase()===q.toLowerCase()))
-    html+=`<div class="picker-item picker-new" onclick="bbkSelect('${q.replace(/'/g,"\\'")}',true)">➕ "${q}" 새 책으로 추가</div>`;
-  if(!html)html='<div class="picker-empty">책 없음 — 직접 입력하면 자동으로 목록에 추가돼요!</div>';
-  drop.innerHTML=html;
-  drop.classList.add('open');
+  if(q&&!bookLib.some(b=>(b.title||b).toLowerCase()===q.toLowerCase()))html+='<div class="pi pi-new" onclick="bbkSel(\''+q.replace(/'/g,"\\'")+'\',\''+bLang+'\',true)">➕ "'+q+'" 새 책으로 추가</div>';
+  if(!html)html='<div class="pi-empty">책 없음 — 직접 입력하면 자동으로 추가돼요!</div>';
+  drop.innerHTML=html;drop.classList.add('open');
 }
-function bbkSelect(name,isNew=false){
-  if(isNew&&!bookLib.includes(name)){bookLib.push(name);bkSave();}
-  bSelBk=name;
-  const inp=document.getElementById('bbk-input');
-  inp.value=name;inp.className='picker-input b-sel';
+function bbkSel(title,lang,isNew){
+  if(isNew&&!bookLib.some(b=>(b.title||b)===title)){bookLib.push({title,lang});bkSave();}
+  bSelBk=title;setLang(lang);
+  const inp=document.getElementById('bbk-inp');inp.value=title;inp.className='picker-input bsel';
   document.getElementById('bbk-drop').classList.remove('open');
 }
 
-// VIDEO RENDER
 function vRender(){
   const months=getMonths(vData);
   if(!vMonth||!months.includes(vMonth))vMonth=months[0];
-  document.getElementById('v-month-tabs').innerHTML=months.map(m=>
-    `<button class="month-btn${m===vMonth?' v-active':''}" onclick="vSetMonth('${m}')">${fmtM(m)}</button>`
-  ).join('');
+  document.getElementById('v-months').innerHTML=months.map(m=>'<button class="month-btn'+(m===vMonth?' mva':'')+'" onclick="vSetM(\''+m+'\')">'+fmtM(m)+'</button>').join('');
   const md=vData.filter(d=>d.date.slice(0,7)===vMonth);
   const total=md.reduce((s,d)=>s+d.min,0);
   const days=new Set(md.map(d=>d.date));
   const avg=days.size>0?Math.round(total/days.size):0;
   const pct=Math.min(100,Math.round((avg/60)*100));
   const bc=avg<=60?'#4CAF82':'#E05555';
-  document.getElementById('v-header-sub').textContent=`${fmtM(vMonth)} · 총 ${fmtMin(total)} 시청`;
-  document.getElementById('v-stats').innerHTML=`
-    <div class="stat-card"><div class="stat-label">월 총 시청</div><div class="stat-value">${fmtMin(total)}</div><div class="stat-sub">${md.length}회 기록</div></div>
-    <div class="stat-card"><div class="stat-label">하루 평균</div><div class="stat-value">${fmtMin(avg)}</div><div class="stat-sub">${days.size}일 시청</div></div>
-    <div class="stat-card wide"><div class="stat-label">하루 평균 vs 권장 1시간</div><div class="progress-wrap"><div class="progress-fill" style="width:${pct}%;background:${bc}"></div></div><div class="stat-sub" style="margin-top:6px">${avg<=60?'✅ 권장 시간 이내':`⚠️ 권장 시간 ${avg-60}분 초과`}</div></div>`;
+  document.getElementById('vh-sub').textContent=fmtM(vMonth)+' · 총 '+fmtMin(total)+' 시청';
+  document.getElementById('v-stats').innerHTML='<div class="sc"><div class="sl">월 총 시청</div><div class="sv">'+fmtMin(total)+'</div><div class="ss">'+md.length+'회 기록</div></div><div class="sc"><div class="sl">하루 평균</div><div class="sv">'+fmtMin(avg)+'</div><div class="ss">'+days.size+'일 시청</div></div><div class="sc wide"><div class="sl">하루 평균 vs 권장 1시간</div><div class="pw"><div class="pf" style="width:'+pct+'%;background:'+bc+'"></div></div><div class="ss" style="margin-top:6px">'+(avg<=60?'✅ 권장 시간 이내':'⚠️ 권장 시간 '+(avg-60)+'분 초과')+'</div></div>';
 
-  // 기록
   const logEl=document.getElementById('v-view-log');
   if(!md.length)logEl.innerHTML='<div class="empty"><span>📭</span>아직 기록이 없어요</div>';
-  else{
-    const s=[...md].sort((a,b)=>b.date.localeCompare(a.date));
-    logEl.innerHTML=`<div class="log-list">${s.map(d=>`
-      <div class="log-item">
-        <div class="log-dot">🎬</div>
-        <div class="log-info">
-          <div class="log-title">${d.title}</div>
-          <div class="log-meta">${d.date}${d.channel?' · <span class="channel-badge">'+d.channel+'</span>':''}</div>
-        </div>
-        <div class="log-time">${fmtMin(d.min)}</div>
-        <button class="btn-del" onclick="vDel('${d.id}')">×</button>
-      </div>`).join('')}</div>`;
-  }
+  else{const s=[...md].sort((a,b)=>b.date.localeCompare(a.date));logEl.innerHTML='<div class="log-list">'+s.map(d=>'<div class="log-item"><div class="log-dot">🎬</div><div class="log-info"><div class="log-title">'+d.title+'</div><div class="log-meta">'+d.date+(d.channel?' · <span class="badge-ch">'+d.channel+'</span>':'')+'</div></div><div class="log-time">'+fmtMin(d.min)+'</div><button class="btn-del" onclick="vDel(\''+d.id+'\')">×</button></div>').join('')+'</div>';}
 
-  // 채널별
   const chEl=document.getElementById('v-view-ch');
   const chMap={};md.forEach(d=>{const k=d.channel||'채널 없음';chMap[k]=(chMap[k]||0)+d.min;});
   const chSorted=Object.entries(chMap).sort((a,b)=>b[1]-a[1]);
   if(!chSorted.length)chEl.innerHTML='<div class="empty"><span>📊</span>기록이 없어요</div>';
-  else{
-    const maxMin=chSorted[0][1];
-    chEl.innerHTML=`<div class="log-list">${chSorted.map(([ch,min],i)=>`
-      <div class="video-item">
-        <div class="video-rank ${i===0?'gold':i===1?'silver':i===2?'bronze':''}">${i+1}</div>
-        <div class="log-info" style="flex:1;min-width:0">
-          <div class="log-title">${ch}</div>
-          <div class="progress-wrap" style="margin-top:5px"><div class="progress-fill" style="width:${Math.round((min/maxMin)*100)}%;background:var(--v-primary)"></div></div>
-        </div>
-        <div class="log-time">${fmtMin(min)}</div>
-      </div>`).join('')}</div>`;
-  }
+  else{const mx=chSorted[0][1];chEl.innerHTML='<div class="log-list">'+chSorted.map(([ch,min],i)=>'<div class="vi"><div class="vr '+(i===0?'gold':i===1?'silver':i===2?'bronze':'')+'\">'+(i+1)+'</div><div class="log-info" style="flex:1;min-width:0"><div class="log-title">'+ch+'</div><div class="pw" style="margin-top:5px"><div class="pf" style="width:'+Math.round((min/mx)*100)+'%;background:var(--vp)"></div></div></div><div class="log-time">'+fmtMin(min)+'</div></div>').join('')+'</div>';}
 
-  // 영상 목록
-  const vidEl=document.getElementById('v-view-videos');
+  const vidEl=document.getElementById('v-view-vids');
   if(!md.length)vidEl.innerHTML='<div class="empty"><span>📋</span>기록된 영상 없음</div>';
-  else{
-    const cnt={};md.forEach(d=>{cnt[d.title]=(cnt[d.title]||0)+1;});
-    const uniq=[...new Set(md.map(d=>d.title))].sort((a,b)=>cnt[b]-cnt[a]);
-    vidEl.innerHTML=`<div class="log-list">${uniq.map((t,i)=>`
-      <div class="video-item">
-        <div class="video-rank ${i===0?'gold':i===1?'silver':i===2?'bronze':''}">${i+1}</div>
-        <div class="video-name">${t}</div>
-        <div class="video-cnt">${cnt[t]}회</div>
-      </div>`).join('')}</div>`;
-  }
+  else{const cnt={};md.forEach(d=>{cnt[d.title]=(cnt[d.title]||0)+1;});const uniq=[...new Set(md.map(d=>d.title))].sort((a,b)=>cnt[b]-cnt[a]);vidEl.innerHTML='<div class="log-list">'+uniq.map((t,i)=>'<div class="vi"><div class="vr '+(i===0?'gold':i===1?'silver':i===2?'bronze':'')+'\">'+(i+1)+'</div><div class="vn">'+t+'</div><div class="vc">'+cnt[t]+'회</div></div>').join('')+'</div>';}
 
-  // 차트
+  const mstatEl=document.getElementById('v-view-mstat');
+  const allM=getMonths(vData).slice(0,6);
+  if(!vData.length)mstatEl.innerHTML='<div class="empty"><span>📅</span>기록이 없어요</div>';
+  else mstatEl.innerHTML='<div class="log-list">'+allM.map(m=>{const mmd=vData.filter(d=>d.date.slice(0,7)===m);const mt=mmd.reduce((s,d)=>s+d.min,0);const mdays=new Set(mmd.map(d=>d.date)).size;const mavg=mdays>0?Math.round(mt/mdays):0;return'<div class="sc wide" style="margin-bottom:0"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:14px;font-weight:800">'+fmtM(m)+'</span><span style="font-size:14px;font-weight:800;color:var(--vp)">'+fmtMin(mt)+'</span></div><div style="font-size:12px;color:var(--text2)">'+mmd.length+'회 기록 · '+mdays+'일 시청 · 평균 '+fmtMin(mavg)+'/일</div><div class="pw" style="margin-top:8px"><div class="pf" style="width:'+Math.min(100,Math.round((mavg/60)*100))+'%;background:'+(mavg<=60?'#4CAF82':'#E05555')+'"></div></div></div>';}).join('')+'</div>';
+
   const today=new Date();const labels=[],vals=[];
-  for(let i=6;i>=0;i--){const d=new Date(today);d.setDate(d.getDate()-i);const ds=d.toISOString().split('T')[0];labels.push(`${d.getMonth()+1}/${d.getDate()}`);vals.push(md.filter(x=>x.date===ds).reduce((s,x)=>s+x.min,0));}
+  for(let i=6;i>=0;i--){const d=new Date(today);d.setDate(d.getDate()-i);const ds=d.toISOString().split('T')[0];labels.push((d.getMonth()+1)+'/'+d.getDate());vals.push(md.filter(x=>x.date===ds).reduce((s,x)=>s+x.min,0));}
   const ctx=document.getElementById('vChart').getContext('2d');
   if(vChart)vChart.destroy();
   vChart=new Chart(ctx,{type:'bar',data:{labels,datasets:[{data:vals,backgroundColor:vals.map(v=>v>60?'rgba(224,85,85,0.7)':'rgba(255,107,53,0.7)'),borderRadius:8,borderSkipped:false}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'#F0EDE6'},ticks:{font:{family:'Nunito',size:11}}},x:{grid:{display:false},ticks:{font:{family:'Nunito',size:11}}}}}});
 }
 
 function vAdd(){
-  const channel=vSelCh||document.getElementById('vch-input').value.trim();
+  const channel=vSelCh||document.getElementById('vch-inp').value.trim();
   const title=document.getElementById('vf-title').value.trim();
   const min=parseInt(document.getElementById('vf-min').value);
   const date=document.getElementById('vf-date').value;
@@ -500,131 +328,75 @@ function vAdd(){
   if(!date){msg.className='msg err';msg.textContent='날짜를 선택해주세요.';return;}
   if(channel&&!channels.includes(channel)){channels.push(channel);chSave();}
   vData.push({id:Date.now().toString(),title,channel,min,date});vSave();
-  document.getElementById('vf-title').value='';
-  document.getElementById('vf-min').value='';
-  vMonth=date.slice(0,7);
-  msg.className='msg ok';msg.textContent=`"${title}" 추가됐어요!`;
+  document.getElementById('vf-title').value='';document.getElementById('vf-min').value='';
+  vSelCh='';document.getElementById('vch-inp').value='';document.getElementById('vch-inp').className='picker-input';
+  vMonth=date.slice(0,7);msg.className='msg ok';msg.textContent='"'+title+'" 추가됐어요!';
   setTimeout(()=>{msg.textContent='';},2000);vRender();
 }
 function vDel(id){if(!confirm('삭제할까요?'))return;vData=vData.filter(d=>d.id!==id);vSave();vRender();}
-function vSetMonth(m){vMonth=m;vRender();}
-function vSwitch(v){
-  vView=v;
-  ['log','ch','videos'].forEach(x=>{
-    document.getElementById('v-view-'+x).style.display=v===x?'':'none';
-    document.getElementById('vtab-'+x).className='view-tab'+(v===x?' v-active':'');
-  });
-}
+function vSetM(m){vMonth=m;vRender();}
+function vSwitch(v){vView=v;['log','ch','vids','mstat'].forEach(x=>{document.getElementById('v-view-'+x).style.display=v===x?'':'none';document.getElementById('vtab-'+x).className='view-tab'+(v===x?' tva':'');});}
 
-// BOOK RENDER
 function bRender(){
   const months=getMonths(bData);
   if(!bMonth||!months.includes(bMonth))bMonth=months[0];
-  document.getElementById('b-month-tabs').innerHTML=months.map(m=>
-    `<button class="month-btn${m===bMonth?' b-active':''}" onclick="bSetMonth('${m}')">${fmtM(m)}</button>`
-  ).join('');
+  document.getElementById('b-months').innerHTML=months.map(m=>'<button class="month-btn'+(m===bMonth?' mba':'')+'" onclick="bSetM(\''+m+'\')">'+fmtM(m)+'</button>').join('');
   const mb=bData.filter(b=>b.date.slice(0,7)===bMonth);
-  const totalP=mb.reduce((s,b)=>s+(b.pages||0),0);
-  document.getElementById('b-header-sub').textContent=`${fmtM(bMonth)} · ${mb.length}권 읽음`;
-  document.getElementById('b-stats').innerHTML=`
-    <div class="stat-card"><div class="stat-label">이번달 독서</div><div class="stat-value">${mb.length}<span style="font-size:15px">권</span></div><div class="stat-sub">목표: 월 4권</div></div>
-    <div class="stat-card"><div class="stat-label">읽은 페이지</div><div class="stat-value">${totalP.toLocaleString()}</div><div class="stat-sub">페이지</div></div>`;
+  const krCnt=mb.filter(b=>b.lang!=='en').length;const enCnt=mb.filter(b=>b.lang==='en').length;
+  document.getElementById('bh-sub').textContent=fmtM(bMonth)+' · '+mb.length+'권 (한글 '+krCnt+' / 영어 '+enCnt+')';
+  document.getElementById('b-stats').innerHTML='<div class="sc"><div class="sl">🇰🇷 한글책</div><div class="sv">'+krCnt+'<span style="font-size:15px">권</span></div><div class="ss">이번달</div></div><div class="sc"><div class="sl">🇺🇸 영어책</div><div class="sv">'+enCnt+'<span style="font-size:15px">권</span></div><div class="ss">이번달</div></div>';
 
   const logEl=document.getElementById('b-view-log');
   if(!mb.length)logEl.innerHTML='<div class="empty"><span>📭</span>아직 기록이 없어요</div>';
-  else{
-    const s=[...mb].sort((a,b)=>b.date.localeCompare(a.date));
-    logEl.innerHTML=`<div class="book-list">${s.map(b=>`
-      <div class="book-item">
-        <div class="book-thumb-ph">📗</div>
-        <div class="book-info">
-          <div class="book-title">${b.title}</div>
-          <div class="book-date">${b.date}${b.pages?` · ${b.pages}페이지`:''}</div>
-          ${b.memo?`<div class="book-memo">${b.memo}</div>`:''}
-          <button class="btn-del-sm" onclick="bDel('${b.id}')">삭제</button>
-        </div>
-      </div>`).join('')}</div>`;
-  }
+  else{const s=[...mb].sort((a,b)=>b.date.localeCompare(a.date));logEl.innerHTML='<div class="book-list">'+s.map(b=>'<div class="book-item"><div class="bph '+(b.lang==='en'?'en':'kr')+'">'+(b.lang==='en'?'📘':'📗')+'</div><div class="book-info"><div class="book-title">'+b.title+' <span class="'+(b.lang==='en'?'badge-en':'badge-kr')+'">'+(b.lang==='en'?'영어':'한글')+'</span></div><div class="book-date">'+b.date+'</div>'+(b.memo?'<div class="book-memo">'+b.memo+'</div>':'')+'<button class="btn-del-sm" onclick="bDel(\''+b.id+'\')">삭제</button></div></div>').join('')+'</div>';}
 
-  const statsEl=document.getElementById('b-view-stats');
-  statsEl.innerHTML=`<div class="book-list">
-    <div class="stat-card wide"><div class="stat-label">전체 독서 기록</div><div class="stat-value">${bData.length}<span style="font-size:15px">권</span></div><div class="stat-sub">기록 시작 이후 총 합계</div></div>
-    ${getMonths(bData).map(m=>`<div style="background:var(--card);border-radius:var(--radius-sm);padding:12px 14px;display:flex;justify-content:space-between;align-items:center;"><span style="font-size:14px;font-weight:700;">${fmtM(m)}</span><span style="font-size:16px;font-weight:800;color:var(--b-primary);">${bData.filter(b=>b.date.slice(0,7)===m).length}권</span></div>`).join('')}
-  </div>`;
+  const statEl=document.getElementById('b-view-stat');
+  const allM=getMonths(bData).slice(0,6);
+  const totalKr=bData.filter(b=>b.lang!=='en').length;const totalEn=bData.filter(b=>b.lang==='en').length;
+  const titleCnt={};const titleLang={};
+  bData.forEach(b=>{titleCnt[b.title]=(titleCnt[b.title]||0)+1;titleLang[b.title]=b.lang||'kr';});
+  const bookRanked=Object.entries(titleCnt).sort((a,b)=>b[1]-a[1]);
+  statEl.innerHTML='<div class="log-list"><div class="sc wide"><div class="sl">전체 독서 현황</div><div style="display:flex;gap:16px;margin-top:6px"><div><div style="font-size:22px;font-weight:800">'+totalKr+'</div><div style="font-size:12px;color:var(--text2)">한글책</div></div><div><div style="font-size:22px;font-weight:800;color:var(--ep)">'+totalEn+'</div><div style="font-size:12px;color:var(--text2)">영어책</div></div><div><div style="font-size:22px;font-weight:800;color:var(--bp)">'+(totalKr+totalEn)+'</div><div style="font-size:12px;color:var(--text2)">총 합계</div></div></div></div>'+'<div style="font-size:13px;font-weight:700;color:var(--text2);margin:4px 0 6px">📖 읽은 책 목록 (누적)</div>'+bookRanked.map(([title,cnt])=>'<div class="bsl-item"><div class="bsl-dot '+(titleLang[title]==='en'?'en':'kr')+'">'+(titleLang[title]==='en'?'📘':'📗')+'</div><div class="bsl-name">'+title+'</div><div style="display:flex;align-items:center;gap:6px;flex-shrink:0"><span class="'+(titleLang[title]==='en'?'badge-en':'badge-kr')+'">'+(titleLang[title]==='en'?'영어':'한글')+'</span><span class="bsl-cnt">'+cnt+'회</span></div></div>').join('')+'<div style="font-size:13px;font-weight:700;color:var(--text2);margin:8px 0 6px">📅 월별 독서 현황</div>'+allM.map(m=>{const mmd=bData.filter(b=>b.date.slice(0,7)===m);const mkr=mmd.filter(b=>b.lang!=='en').length;const men=mmd.filter(b=>b.lang==='en').length;return'<div class="sc wide" style="margin-bottom:0"><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:14px;font-weight:800">'+fmtM(m)+'</span><span style="font-size:14px;font-weight:800;color:var(--bp)">'+mmd.length+'권</span></div><div style="font-size:12px;color:var(--text2);margin-top:3px">한글 '+mkr+'권 · 영어 '+men+'권</div></div>';}).join('')+'</div>';
 
-  const allM=getMonths(bData).slice(0,6).reverse();
+  const allM2=getMonths(bData).slice(0,6).reverse();
   const ctx=document.getElementById('bChart').getContext('2d');
   if(bChart)bChart.destroy();
-  bChart=new Chart(ctx,{type:'bar',data:{labels:allM.map(fmtM),datasets:[{data:allM.map(m=>bData.filter(b=>b.date.slice(0,7)===m).length),backgroundColor:allM.map((_,i)=>i===allM.length-1?'rgba(76,175,130,0.9)':'rgba(76,175,130,0.4)'),borderRadius:8,borderSkipped:false}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1,font:{family:'Nunito',size:11}},grid:{color:'#EAF3EA'}},x:{grid:{display:false},ticks:{font:{family:'Nunito',size:11}}}}}});
+  bChart=new Chart(ctx,{type:'bar',data:{labels:allM2.map(fmtM),datasets:[{label:'한글',data:allM2.map(m=>bData.filter(b=>b.date.slice(0,7)===m&&b.lang!=='en').length),backgroundColor:'rgba(76,175,130,0.7)',borderRadius:6,borderSkipped:false},{label:'영어',data:allM2.map(m=>bData.filter(b=>b.date.slice(0,7)===m&&b.lang==='en').length),backgroundColor:'rgba(91,127,212,0.7)',borderRadius:6,borderSkipped:false}]},options:{responsive:true,plugins:{legend:{display:true,labels:{font:{family:'Nunito',size:11},boxWidth:12}}},scales:{x:{stacked:true,grid:{display:false},ticks:{font:{family:'Nunito',size:11}}},y:{stacked:true,beginAtZero:true,ticks:{stepSize:1,font:{family:'Nunito',size:11}},grid:{color:'#EAF3EA'}}}}});
 }
 
 function bAdd(){
-  const title=bSelBk||document.getElementById('bbk-input').value.trim();
+  const title=bSelBk||document.getElementById('bbk-inp').value.trim();
   const date=document.getElementById('bf-date').value;
-  const pages=parseInt(document.getElementById('bf-pages').value)||0;
   const memo=document.getElementById('bf-memo').value.trim();
-  const msg=document.getElementById('b-msg');
+  const lang=bLang;const msg=document.getElementById('b-msg');
   if(!title){msg.className='msg err';msg.textContent='책 제목을 입력해주세요.';return;}
   if(!date){msg.className='msg err';msg.textContent='날짜를 선택해주세요.';return;}
-  if(!bookLib.includes(title)){bookLib.push(title);bkSave();}
-  bData.push({id:Date.now().toString(),title,date,pages,memo});bSave();
-  document.getElementById('bbk-input').value='';
-  document.getElementById('bbk-input').className='picker-input';
-  bSelBk='';
-  document.getElementById('bf-pages').value='';
-  document.getElementById('bf-memo').value='';
-  bMonth=date.slice(0,7);
-  msg.className='msg ok';msg.textContent=`"${title}" 추가됐어요!`;
+  if(!bookLib.some(b=>(b.title||b)===title)){bookLib.push({title,lang});bkSave();}
+  bData.push({id:Date.now().toString(),title,date,memo,lang});bSave();
+  document.getElementById('bbk-inp').value='';document.getElementById('bbk-inp').className='picker-input';
+  bSelBk='';document.getElementById('bf-memo').value='';
+  bMonth=date.slice(0,7);msg.className='msg ok';msg.textContent='"'+title+'" 추가됐어요!';
   setTimeout(()=>{msg.textContent='';},2000);bRender();
 }
 function bDel(id){if(!confirm('삭제할까요?'))return;bData=bData.filter(b=>b.id!==id);bSave();bRender();}
-function bSetMonth(m){bMonth=m;bRender();}
-function bSwitch(v){
-  bView=v;
-  document.getElementById('b-view-log').style.display=v==='log'?'':'none';
-  document.getElementById('b-view-stats').style.display=v==='stats'?'':'none';
-  document.getElementById('btab-log').className='view-tab'+(v==='log'?' b-active':'');
-  document.getElementById('btab-stats').className='view-tab'+(v==='stats'?' b-active':'');
-}
+function bSetM(m){bMonth=m;bRender();}
+function bSwitch(v){bView=v;['log','stat'].forEach(x=>{document.getElementById('b-view-'+x).style.display=v===x?'':'none';document.getElementById('btab-'+x).className='view-tab'+(v===x?' tba':'');});}
 
-// MANAGE
 function renderManage(){
-  document.getElementById('ch-count').textContent=`${channels.length}개`;
-  const clEl=document.getElementById('ch-manage-list');
+  document.getElementById('ch-cnt').textContent=channels.length+'개';
+  const clEl=document.getElementById('ch-mlist');
   if(!channels.length)clEl.innerHTML='<div style="font-size:13px;color:var(--text3);padding:4px 0">채널이 없어요. 아래에서 추가해보세요!</div>';
-  else clEl.innerHTML=channels.map((c,i)=>`
-    <div class="manage-item">
-      <span class="manage-item-name">📺 ${c}</span>
-      <span class="manage-item-sub">${vData.filter(d=>d.channel===c).length}회</span>
-      <button class="btn-manage-del" onclick="chDel(${i})">×</button>
-    </div>`).join('');
-
-  document.getElementById('bk-count').textContent=`${bookLib.length}권`;
-  const bkEl=document.getElementById('bk-manage-list');
+  else clEl.innerHTML=channels.map((c,i)=>'<div class="manage-item"><span class="mi-name">📺 '+c+'</span><span class="mi-sub">'+vData.filter(d=>d.channel===c).length+'회</span><button class="btn-mdel" onclick="chDel('+i+')">×</button></div>').join('');
+  document.getElementById('bk-cnt').textContent=bookLib.length+'권';
+  const bkEl=document.getElementById('bk-mlist');
   if(!bookLib.length)bkEl.innerHTML='<div style="font-size:13px;color:var(--text3);padding:4px 0">책이 없어요. 기록하면 자동으로 추가돼요!</div>';
-  else bkEl.innerHTML=bookLib.map((b,i)=>`
-    <div class="manage-item">
-      <span class="manage-item-name">📗 ${b}</span>
-      <span class="manage-item-sub">${bData.filter(d=>d.title===b).length}번</span>
-      <button class="btn-manage-del" onclick="bkDel(${i})">×</button>
-    </div>`).join('');
+  else bkEl.innerHTML=bookLib.map((b,i)=>{const title=b.title||b;const lang=b.lang||'kr';return'<div class="manage-item"><span class="mi-name">'+(lang==='en'?'📘':'📗')+' '+title+'</span><span class="mi-sub">'+(lang==='en'?'영어':'한글')+' · '+bData.filter(d=>d.title===title).length+'번</span><button class="btn-mdel" onclick="bkDel('+i+')">×</button></div>';}).join('');
 }
-function chAdd(){
-  const v=document.getElementById('ch-new').value.trim();
-  if(!v)return;
-  if(channels.includes(v)){alert('이미 있는 채널이에요!');return;}
-  channels.push(v);chSave();document.getElementById('ch-new').value='';renderManage();
-}
-function chDel(i){if(!confirm(`"${channels[i]}" 삭제할까요?`))return;channels.splice(i,1);chSave();renderManage();}
-function bkAdd(){
-  const v=document.getElementById('bk-new').value.trim();
-  if(!v)return;
-  if(bookLib.includes(v)){alert('이미 있는 책이에요!');return;}
-  bookLib.push(v);bkSave();document.getElementById('bk-new').value='';renderManage();
-}
-function bkDel(i){if(!confirm(`"${bookLib[i]}" 삭제할까요?`))return;bookLib.splice(i,1);bkSave();renderManage();}
+function chAdd(){const v=document.getElementById('ch-new').value.trim();if(!v)return;if(channels.includes(v)){alert('이미 있는 채널이에요!');return;}channels.push(v);chSave();document.getElementById('ch-new').value='';renderManage();}
+function chDel(i){if(!confirm('"'+channels[i]+'" 삭제할까요?'))return;channels.splice(i,1);chSave();renderManage();}
+function bkAdd(){const v=document.getElementById('bk-new').value.trim();if(!v)return;if(bookLib.some(b=>(b.title||b)===v)){alert('이미 있는 책이에요!');return;}bookLib.push({title:v,lang:'kr'});bkSave();document.getElementById('bk-new').value='';renderManage();}
+function bkDel(i){if(!confirm('"'+(bookLib[i].title||bookLib[i])+'" 삭제할까요?'))return;bookLib.splice(i,1);bkSave();renderManage();}
 
-// Init
 const y=yesterday();
 document.getElementById('vf-date').value=y;
 document.getElementById('bf-date').value=y;
