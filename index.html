@@ -163,9 +163,9 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
     <div id="v-view-vids" style="display:none"></div>
     <div id="v-view-mstat" style="display:none"></div>
     <div class="chart-card" id="v-chart-area">
-      <div class="ct">📊 주간 시청 시간 (분)</div>
+      <div class="ct">📊 월별 시청 시간</div>
       <canvas id="vChart" height="150"></canvas>
-      <button class="save-img-btn" onclick="saveImg('v-chart-area','영상_주간차트')">📥 이미지로 저장</button>
+      <button class="save-img-btn" onclick="saveImg('v-chart-area','영상_월별차트')">📥 이미지로 저장</button>
     </div>
   </div>
 </div>
@@ -401,11 +401,12 @@ function vRender(){
     mstatEl.innerHTML='<div id="v-mstat-capture" class="capture-area"><div style="font-size:13px;font-weight:800;color:var(--text2);margin-bottom:10px">📅 월별 시청 통계</div><div class="log-list">'+rows+'</div></div><button class="save-img-btn" onclick="saveImg(\'v-mstat-capture\',\'영상_월통계\')">📥 이미지로 저장</button>';
   }
 
-  const today=new Date();const labels=[],vals=[];
-  for(let i=6;i>=0;i--){const d=new Date(today);d.setDate(d.getDate()-i);const ds=d.toISOString().split('T')[0];labels.push((d.getMonth()+1)+'/'+d.getDate());vals.push(md.filter(x=>x.date===ds).reduce((s,x)=>s+x.min,0));}
+  const allMV=getMonths(vData).slice(0,6).reverse();
+  const vLabels=allMV.map(fmtM);
+  const vVals=allMV.map(m=>vData.filter(d=>d.date.slice(0,7)===m).reduce((s,d)=>s+d.min,0));
   const ctx=document.getElementById('vChart').getContext('2d');
   if(vChart)vChart.destroy();
-  vChart=new Chart(ctx,{type:'bar',data:{labels,datasets:[{data:vals,backgroundColor:vals.map(v=>v>60?'rgba(224,85,85,0.7)':'rgba(255,107,53,0.7)'),borderRadius:8,borderSkipped:false}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'#F0EDE6'},ticks:{font:{family:'Nunito',size:11}}},x:{grid:{display:false},ticks:{font:{family:'Nunito',size:11}}}}}});
+  vChart=new Chart(ctx,{type:'bar',data:{labels:vLabels,datasets:[{data:vVals,backgroundColor:vVals.map((_,i)=>i===vVals.length-1?'rgba(255,107,53,0.9)':'rgba(255,107,53,0.4)'),borderRadius:8,borderSkipped:false}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'#F0EDE6'},ticks:{font:{family:'Nunito',size:11},callback:v=>v>=60?Math.floor(v/60)+'h':v+'m'}},x:{grid:{display:false},ticks:{font:{family:'Nunito',size:11}}}}}});
 }
 
 function vAdd(){
